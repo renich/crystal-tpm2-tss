@@ -1,0 +1,12 @@
+{
+  "files": [
+    {"file": "/home/renich/Projects/crystal/crypto/crystal-tpm2-tss/src/crystal-tpm2-tss/core.cr", "percent_covered": "95.62", "covered_lines": "153", "total_lines": "160"}
+  ],
+  "percent_covered": "95.62",
+  "covered_lines": 153,
+  "total_lines": 160,
+  "percent_low": 25,
+  "percent_high": 75,
+  "command": "spec_bin",
+  "date": "2026-06-05 05:55:19"
+}

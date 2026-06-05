@@ -1,0 +1,32 @@
+stages:
+  - test
+  - deploy
+
+test:
+  stage: test
+  image: crystallang/crystal:latest-alpine
+  before_script:
+    - apk add --no-cache make git libsodium-dev tpm2-tss-dev pcre2-dev
+  script:
+    - shards install
+    - make lint
+    - make test
+  tags:
+    - docker
+
+pages:
+  stage: deploy
+  image: crystallang/crystal:latest-alpine
+  before_script:
+    - apk add --no-cache make git libsodium-dev tpm2-tss-dev pcre2-dev
+  script:
+    - make docs
+    - mkdir -p public
+    - cp -r docs/* public/
+  artifacts:
+    paths:
+      - public
+  rules:
+    - if: $CI_COMMIT_BRANCH == "master"
+  tags:
+    - docker
