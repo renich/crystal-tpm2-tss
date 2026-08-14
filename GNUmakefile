@@ -7,13 +7,23 @@ all: lint test
 
 deps:
 	shards install
+	@if ! bin/ameba --version >/dev/null 2>&1 && [ -f lib/ameba/src/cli.cr ]; then \
+		echo "Building bin/ameba natively..."; \
+		mkdir -p bin; \
+		$(CRYSTAL) build lib/ameba/src/cli.cr -o bin/ameba; \
+	fi
+	@if ! bin/flaw --version >/dev/null 2>&1 && [ -f lib/flaw/src/cli.cr ]; then \
+		echo "Building bin/flaw natively..."; \
+		mkdir -p bin; \
+		$(CRYSTAL) build lib/flaw/src/cli.cr -o bin/flaw; \
+	fi
 
 test: deps
 	$(CRYSTAL) spec
 
 lint: deps
 	bin/ameba
-	[ -x bin/flaw ] && bin/flaw scan . || flaw scan .
+	bin/flaw scan .
 
 docs: deps
 	$(CRYSTAL) docs --output=docs/technical/api

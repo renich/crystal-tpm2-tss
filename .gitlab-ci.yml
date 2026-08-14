@@ -1,7 +1,7 @@
 default:
-  image: crystallang/crystal:latest
+  image: crystallang/crystal:latest-alpine
   before_script:
-    - apt-get update -qq && apt-get install -y -qq --no-install-recommends make git libsodium-dev libtss2-dev libpcre2-dev >/dev/null 2>&1
+    - apk add --no-cache make git libsodium-dev tpm2-tss-dev pcre2-dev yaml-dev yaml-static
   interruptible: true
 
 stages:
@@ -11,7 +11,6 @@ stages:
 test:
   stage: test
   script:
-    - shards install
     - make lint
     - make test
 

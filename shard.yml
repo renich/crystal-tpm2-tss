@@ -11,5 +11,6 @@ license: AGPL-3.0-or-later
 development_dependencies:
   ameba:
     github: crystal-ameba/ameba
+    branch: master
   flaw:
     github: kdairatchi/flaw
