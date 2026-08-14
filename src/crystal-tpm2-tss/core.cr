@@ -102,15 +102,14 @@ class KDFKeyManager
 
   # Get or create the KDF key
   # The key is derived from TPM NV storage, so it persists across reboots
-  # ameba:disable Naming/AccessorMethodName
-  def get_kdf_key : Bytes
-    if kdf_key = @kdf_key
-      return kdf_key
+  def kdf_key : Bytes
+    if kdf_key_val = @kdf_key
+      return kdf_key_val
     end
 
     @mutex.synchronize do
-      if kdf_key = @kdf_key
-        return kdf_key
+      if kdf_key_val = @kdf_key
+        return kdf_key_val
       end
 
       # Try to read existing KDF key from NV
@@ -300,7 +299,10 @@ class Session
 
   def compute_hmac(auth_value : Bytes, command_code : UInt32, params : Bytes) : Bytes
     @mutex.synchronize do
-      hmac_key = @session_key + auth_value
+      hmac_key = Bytes.new(@session_key.size + auth_value.size)
+      @session_key.copy_to(hmac_key.to_unsafe, @session_key.size)
+      auth_value.copy_to(hmac_key.to_unsafe + @session_key.size, auth_value.size)
+
       hash_alg_val = OpenSSL::Algorithm.parse(hash_alg_name)
 
       buffer = IO::Memory.new
@@ -357,7 +359,7 @@ class FIDO2CredentialManager
 
   # Derive auth value from credential_id using KDF
   def derive_auth_value(credential_id : String) : Bytes
-    kdf_key = @kdf_manager.get_kdf_key
+    kdf_key = @kdf_manager.kdf_key
 
     # Domain-separated KDF
     label = "FIDO2-AUTH-v1"
@@ -684,26 +686,35 @@ class ECDSASignature
 end
 
 class SignatureRTracker
-  @r_values : Array(String)
+  @r_set : Set(String)
+  @r_order : Deque(String)
   @max_size : Int32
   @mutex : Mutex
 
   def initialize(@max_size : Int32)
-    @r_values = Array(String).new
+    @r_set = Set(String).new
+    @r_order = Deque(String).new
     @mutex = Mutex.new
   end
 
   def includes?(r_hex : String) : Bool
-    @mutex.synchronize { @r_values.includes?(r_hex) }
+    @mutex.synchronize { @r_set.includes?(r_hex) }
   end
 
   def add(r_hex : String)
     @mutex.synchronize do
-      @r_values << r_hex
+      return if @r_set.includes?(r_hex)
 
-      # If too many entries, remove oldest half
-      if @r_values.size > @max_size
-        @r_values.shift(@max_size // 2)
+      @r_set.add(r_hex)
+      @r_order << r_hex
+
+      if @r_order.size > @max_size
+        evict_count = @max_size // 2
+        evict_count.times do
+          if oldest = @r_order.shift?
+            @r_set.delete(oldest)
+          end
+        end
       end
     end
   end
@@ -714,19 +725,6 @@ module TPM2
     NV_DEFINED = 0x0000014c_u32
   end
 end
-
-# ============================================================================
-# TEST
-# ============================================================================
-puts "TPM2-TSS Implementation"
-puts "========================"
-puts "Features:"
-puts "- KDF key persistence via TPM NV"
-puts "- Domain-separated auth derivation"
-puts "- Session management with nonce tracking"
-puts "- R-value tracking for nonce reuse detection"
-puts ""
-puts "Architecture complete!"
 
 module ParameterEncryption
   def self.encrypt(data : Bytes, session : Session, alg : String) : Bytes

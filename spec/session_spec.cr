@@ -11,7 +11,7 @@ describe "Session" do
     nonce = session.roll_nonce
     nonce.size.should eq(32) # SHA256 size
     session.nonce_caller.should eq(nonce)
-    
+
     nonce2 = session.roll_nonce
     nonce2.should_not eq(nonce)
   end
@@ -23,11 +23,11 @@ describe "Session" do
     session.update_nonce_tpm(Bytes.new(32, 0x02_u8))
     # force nonce_caller
     session.nonce_caller = Bytes.new(32, 0x03_u8)
-    
+
     auth_value = Bytes.new(32, 0x04_u8)
     command_code = 0x0000015c_u32 # Sign
     params = Bytes[0xAA, 0xBB]
-    
+
     hmac = session.compute_hmac(auth_value, command_code, params)
     hmac.size.should eq(32)
     # the output is deterministic, we just check it doesn't fail and size is correct

@@ -15,7 +15,7 @@ describe "SignatureRTracker" do
     tracker.add("33")
     tracker.add("44")
     tracker.add("55") # exceeding size (4)
-    
+
     # max_size is 4. When it reaches 5 (> 4), it keeps the latest half or sorted half.
     # As per implementation: sorted = @r_values.to_a.sort; @r_values = sorted[@max_size//2..-1].to_set
     # "11", "22", "33", "44", "55" -> sort -> "11", "22", "33", "44", "55"

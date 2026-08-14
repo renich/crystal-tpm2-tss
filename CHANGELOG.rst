@@ -10,6 +10,20 @@ and this project adheres to `Semantic Versioning <https://semver.org/spec/v2.0.0
 [Unreleased]
 ============
 
+[0.2.0] - 2026-08-13
+====================
+
+Changed
+-------
+- Renamed ``KDFKeyManager#get_kdf_key`` to ``KDFKeyManager#kdf_key`` adhering to Crystal accessor conventions.
+- Overhauled ``SignatureRTracker`` from linear array lookup to ``Set(String)`` for O(1) membership and ``Deque(String)`` for O(1) chronological eviction.
+
+Fixed
+~~~~~
+- Corrected HMAC session key concatenation by pre-allocating byte buffers with ``copy_to``.
+- Modernized GNUmakefile test target to use ``$(CRYSTAL) spec``.
+- Cleaned up spec formatting and removed obsolete TODO comments.
+
 [0.1.0] - 2026-06-05
 ====================
 

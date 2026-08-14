@@ -4,6 +4,7 @@ class FIDO2CredentialManager
   def public_create_fido2_credential(id : String, auth : Bytes)
     create_fido2_credential(id, auth)
   end
+
   def public_credential_id_to_nv_index(id : String)
     credential_id_to_nv_index(id)
   end
@@ -50,7 +51,7 @@ describe "FIDO2CredentialManager" do
   it "calls create_fido2_credential successfully" do
     tpm = MockTPMDevice.new
     manager = FIDO2CredentialManager.new(tpm)
-    
+
     resp = TPMResponse.new(TPM2::Tag::SESSIONS, 14, 0)
     io = IO::Memory.new
     io.write_bytes(12345_u32, TPM2::ENDIAN)
@@ -65,11 +66,11 @@ describe "FIDO2CredentialManager" do
   it "credential_id_to_nv_index generates correct indices" do
     tpm = MockTPMDevice.new
     manager = FIDO2CredentialManager.new(tpm)
-    
+
     index1 = manager.public_credential_id_to_nv_index("cred1")
     index2 = manager.public_credential_id_to_nv_index("cred1")
     index3 = manager.public_credential_id_to_nv_index("cred2")
-    
+
     index1.should eq(index2)
     index1.should_not eq(index3)
     (index1 & 0xFF000000_u32).should eq(0x01000000_u32)
@@ -79,7 +80,7 @@ describe "FIDO2CredentialManager" do
     tpm = MockTPMDevice.new
     manager = FIDO2CredentialManager.new(tpm)
     tpm.next_response = TPMResponse.new(TPM2::Tag::NO_SESSIONS, 10, 0x0143) # TPM error code
-    
+
     digest = Bytes.new(32, 0x01_u8)
     auth = Bytes.new(32, 0x02_u8)
 
@@ -92,7 +93,7 @@ describe "FIDO2CredentialManager" do
     tpm = MockTPMDevice.new
     manager = FIDO2CredentialManager.new(tpm)
     tpm.next_response = TPMResponse.new(TPM2::Tag::NO_SESSIONS, 10, 0x0143)
-    
+
     auth = Bytes.new(32, 0_u8)
     expect_raises(TPMError, "CreatePrimary failed") do
       manager.public_create_fido2_credential("test_id", auth)

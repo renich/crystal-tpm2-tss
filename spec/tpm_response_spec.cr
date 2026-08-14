@@ -25,7 +25,7 @@ describe "TPMResponse" do
     io.write_bytes(0x8002_u16, TPM2::ENDIAN) # tag
     io.write_bytes(31_u32, TPM2::ENDIAN)     # size
     io.write_bytes(0_u32, TPM2::ENDIAN)      # code
-    
+
     # auth_size = 4 (session_count) + 4 (handle) + 2 (nonce size) + 4 (nonce) + 1 (attr) + 2 (hmac size) = 17
     io.write_bytes(17_u32, TPM2::ENDIAN)
     io.write_bytes(1_u32, TPM2::ENDIAN)
@@ -34,15 +34,15 @@ describe "TPMResponse" do
     io.write(Bytes[0xAA, 0xBB, 0xCC, 0xDD])
     io.write_byte(0x01_u8)
     io.write_bytes(0_u16, TPM2::ENDIAN)
-    
+
     data = io.to_slice
-    
+
     mock_session = Session.new(0x02000000_u32, 0_u8, TPM2::Algorithms::SHA256)
     resp = TPMResponse.parse(data, mock_session)
-    
+
     resp.tag.should eq(TPM2::Tag::SESSIONS)
     resp.auth_area.size.should eq(17)
-    
+
     # Check that mock_session nonce was updated
     mock_session.nonce_tpm.should eq(Bytes[0xAA, 0xBB, 0xCC, 0xDD])
   end

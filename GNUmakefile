@@ -9,7 +9,7 @@ deps:
 	shards install
 
 test: deps
-	$(CRYSTAL) spec --format progress
+	$(CRYSTAL) spec
 
 lint: deps
 	bin/ameba
