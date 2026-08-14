@@ -33,7 +33,7 @@ To ensure the codebase remains exemplary, any future modifications or agent orch
 - **Security**: The `flaw` binary is used for static application security testing. Fix vulnerabilities rather than silencing them.
 
 ### 4. Continuous Integration
-- **GitLab Pipeline**: The `.gitlab-ci.yml` strictly uses the `crystallang/crystal:latest-alpine` footprint.
+- **GitLab Pipeline**: The `.gitlab-ci.yml` strictly uses the `crystallang/crystal:latest` footprint.
 - **Documentation**: Whitepapers (`docs/whitepaper.rst`) and architectural documentation are built and deployed via GitLab Pages on the `master` branch.
 - **No GitHub Actions**: We strictly do not use GitHub workflows (no `.github/` folder).
 
