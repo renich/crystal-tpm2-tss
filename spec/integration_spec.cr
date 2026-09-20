@@ -1,5 +1,5 @@
 require "./spec_helper"
-require "../src/crystal-tpm2-tss/core"
+require "../src/crystal-tpm2-tss"
 
 describe "TPM2-TSS Integration" do
   it "simulates an end-to-end FIDO2 credential creation and signing" do

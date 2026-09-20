@@ -3,7 +3,8 @@ require "./spec_helper"
 class MultiResponseMockTPM < TPMDevice
   property responses : Array(TPMResponse)
 
-  def initialize(@responses)
+  def initialize(@responses : Array(TPMResponse))
+    super("/dev/null")
   end
 
   def execute(command : TPMCommand, session : Session? = nil) : TPMResponse

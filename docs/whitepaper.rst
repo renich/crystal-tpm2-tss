@@ -61,7 +61,7 @@ Authentication values are deterministically derived using established KDFs, ensu
 Testing & Proof of Functionality
 --------------------------------
 
-The ``crystal-tpm2-tss`` stack relies on rigorous unit and integration testing to ensure correctness and safety. According to the latest test reports, the implementation successfully achieves 100% test coverage across 26 scenarios. 
+The ``crystal-tpm2-tss`` stack relies on rigorous unit and integration testing to ensure correctness and safety. According to the latest test reports, the implementation successfully achieves 100% test coverage across 29 scenarios. 
 
 Key validation areas include:
 
