@@ -1,5 +1,5 @@
 module Crystal::Tpm2::Tss
-  VERSION = "0.2.0"
+  VERSION = "0.2.1"
 end
 
 require "./crystal-tpm2-tss/types"
