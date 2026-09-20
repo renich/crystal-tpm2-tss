@@ -1,9 +1,14 @@
-/docs/
 /lib/
 /bin/
 /.shards/
 *.dwarf
+/coverage/
+/spec_runner
+/test_bin
+/spec_bin
+scratch.cr
+/docs/technical/api/
+/docs/api/
 
-# Libraries don't need dependency lock
-# Dependencies will be locked in applications that use them
+# Libraries don't lock dependencies
 /shard.lock
