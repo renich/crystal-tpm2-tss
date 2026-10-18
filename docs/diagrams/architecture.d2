@@ -1,0 +1,119 @@
+direction: down
+
+vars: {
+  d2-config: {
+    layout-engine: dagre
+    theme-id: 4
+    pad: 40
+    center: true
+  }
+}
+
+classes: {
+  tier: {
+    style: {
+      stroke: "#2B6CB0"
+      stroke-width: 2
+      border-radius: 8
+      fill: "#F7FAFC"
+    }
+  }
+  module_active: {
+    shape: rectangle
+    style: {
+      stroke: "#3182CE"
+      stroke-width: 2
+      border-radius: 6
+      fill: "#EBF8FF"
+      font-color: "#1A365D"
+      bold: true
+    }
+  }
+  module_phase2: {
+    shape: rectangle
+    style: {
+      stroke: "#DD6B20"
+      stroke-width: 2
+      stroke-dash: 4
+      border-radius: 6
+      fill: "#FEEBC8"
+      font-color: "#7B341E"
+      bold: true
+    }
+  }
+  storage_node: {
+    shape: cylinder
+    style: {
+      stroke: "#2F855A"
+      stroke-width: 2
+      fill: "#C6F6D5"
+      font-color: "#22543D"
+      bold: true
+    }
+  }
+}
+
+crystal_tpm2_tss: "Crystal::Tpm2::Tss Namespace" {
+  class: tier
+
+  fido2_tier: "FIDO2 Credential & NV Persistence Layer [TECH-002]" {
+    class: tier
+
+    fido2_mgr: "FIDO2CredentialManager\nCreatePrimary/Create/Load/EvictControl\nDynamic Handle: 0x81010000 | hash_u16" {
+      class: module_active
+    }
+    nv_store: "NVMetadataStore\nIndices: 0x01800000..0x01BFFFFF\nBounded Linear Probing: 16" {
+      class: storage_node
+    }
+    fido2_cred: "FIDO2Credential\nPersistent Handle & Auth Value\n#sign/#verify/#public_key_xy" {
+      class: module_active
+    }
+    p256_key: "P256Key [LibCryptoP256]\nOpenSSL 3.5 EVP_PKEY NIST P-256\nSPKI DER & ECDSA Sign/Verify" {
+      class: module_active
+    }
+  }
+
+  security_tier: "Cryptographic Session & Nonce Guard Layer [TECH-003, TECH-007]" {
+    class: tier
+
+    r_tracker: "SignatureRTracker [FUNC-005]\nO(1) Set + Deque FIFO Window\nSync::Mutex Nonce-Reuse Guard" {
+      class: module_active
+    }
+    kdf_mgr: "KDFKeyManager\nNV Root Index: 0x01C00000\nPlatform Secret SHA-256 Auth" {
+      class: storage_node
+    }
+    session: "Session & ParameterEncryption\ncpHash/rpHash & Constant-Time HMAC\nKDFa XOR & AES-128-CFB" {
+      class: module_active
+    }
+    policy_pcr: "PolicyPCR & Salted HMAC [TECH-007]\nTPM2_StartAuthSession/TPM2_PolicyPCR\nPhase 2 v0.5.0 Hardware Sessions" {
+      class: module_phase2
+    }
+  }
+
+  framing_tier: "Wire Framing & Transport Layer [TECH-001, TECH-006]" {
+    class: tier
+
+    cmd_resp: "TPMCommand & TPMResponse\nBig-Endian Frame Serialization\nUInt64 Overflow-Safe Session Parser" {
+      class: module_active
+    }
+    tpm2b_codec: "Tpm2bCodec [TECH-006]\nTCG Part 2 Binary Struct Marshaler\nTPM2B_PUBLIC/TPMT_SIGNATURE" {
+      class: module_phase2
+    }
+    device: "TPMDevice\nHardware: /dev/tpmrm0 Stack Buffer\nVirtual: Stateful P-256 Simulator" {
+      class: module_active
+    }
+  }
+
+  fido2_tier.fido2_mgr -> fido2_tier.nv_store: "NV Metadata Lookup/Store"
+  fido2_tier.fido2_mgr -> fido2_tier.fido2_cred: "Instantiate Credential"
+  fido2_tier.fido2_cred -> fido2_tier.p256_key: "Verify ECDSA Digest"
+  fido2_tier.fido2_mgr -> security_tier.r_tracker: "check_and_add! r_hex"
+  fido2_tier.fido2_mgr -> security_tier.kdf_mgr: "Derive Domain Auth Value"
+  fido2_tier.fido2_mgr -> security_tier.session: "Attach Session Auth"
+  security_tier.policy_pcr -> security_tier.session: "Bind PCR Digest & Salt"
+  security_tier.kdf_mgr -> framing_tier.cmd_resp: "NV_Read/NV_Write"
+  security_tier.session -> framing_tier.cmd_resp: "TPMS_AUTH_COMMAND/RESPONSE"
+  framing_tier.tpm2b_codec -> framing_tier.cmd_resp: "Marshal Part 2 Structs"
+  framing_tier.cmd_resp -> framing_tier.device: "Execute Frame I/O"
+  framing_tier.device -> fido2_tier.p256_key: "Virtual P-256 Key Store"
+}

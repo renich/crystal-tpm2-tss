@@ -7,7 +7,7 @@ Thank you for your interest in contributing to ``crystal-tpm2-tss``. We welcome 
 Code of Honor
 =============
 
-All contributors are expected to uphold the principles defined in `CODE_OF_HONOR.rst <CODE_OF_HONOR.rst>`__. We build resilient, well-tested software, demand intellectual honesty, operate transparently, and verify all library behaviors empirically.
+All contributors must uphold the principles defined in `CODE_OF_HONOR.rst <CODE_OF_HONOR.rst>`__. We build resilient, well-tested software, demand intellectual honesty, operate transparently, and verify all library behaviors empirically.
 
 Development Workflow
 ====================
@@ -15,10 +15,10 @@ Development Workflow
 Prerequisites
 -------------
 
-* `Crystal <https://crystal-lang.org/>`__ (``>= 1.21.0``)
-* OpenSSL 3.5 development headers (``openssl-devel`` on Fedora Linux)
+* `Crystal <https://crystal-lang.org/>`__ ``>= 1.21.0``
+* OpenSSL 3.5 development headers via ``openssl-devel`` on Fedora Linux
 * `GNU Make <https://www.gnu.org/software/make/>`__
-* `cRSTLint <https://gitlab.com/renich/crstlint>`__ and ``rstcheck`` (for documentation linting)
+* `cRSTLint <https://gitlab.com/renich/crstlint>`__ and ``rstcheck`` for documentation linting
 
 Setting Up the Workspace
 ------------------------
@@ -30,18 +30,22 @@ Setting Up the Workspace
       git clone git@gitlab.com:renich/crystal-tpm2-tss.git
       cd crystal-tpm2-tss
 
-#. Build linter dependencies and run verification gates:
+#. Build linter dependencies:
 
    .. code-block:: bash
 
       make deps
-      make all
-      make doc-check
+
+#. Verify the test suite, static analysis, and documentation gates:
+
+   .. code-block:: bash
+
+      make check
 
 Testing and Quality Standards
 =============================
 
-We adhere strictly to Test-Driven Development (TDD) and the principle of **Do Not Assume; Always Verify**.
+We adhere strictly to Test-Driven Development and the principle of **Do Not Assume; Always Verify**.
 
 Running Checks
 --------------
@@ -52,13 +56,13 @@ Running Checks
 
       make test
 
-* **Run static linters** (Ameba and Flaw, zero suppressions allowed):
+* **Run static linters** with Ameba and Flaw:
 
    .. code-block:: bash
 
       make lint
 
-* **Validate reStructuredText Documentation**:
+* **Validate RST Documentation**:
 
    .. code-block:: bash
 
@@ -80,4 +84,4 @@ We enforce the Conventional Commits specification:
 * ``docs(adrs): record decision on TPM 2.0 wire framing and virtual simulation``
 * ``test(spec): add end-to-end FIDO2 ECDSA signature verification specs``
 
-All commits must be signed and include ``Signed-off-by`` trailers.
+All commits must be signed and authored with full technical ownership.

@@ -7,15 +7,15 @@ Universal Code of Honor
 :Status: Active
 :Scope: Human & Autonomous Contributors
 
-
 The Core Commitment
 ===================
+
 We build software and autonomous systems to empower humanity, foster transparency, and elevate societal well-being. We reject
 exploitation, manipulation, and the degradation of user autonomy. This is our shared ethos.
 
+The Human Standard for Design and Development
+=============================================
 
-I. The Human Standard (Design & Development)
-============================================
 Empowerment Over Exploitation:
    Technology exists to serve human needs. Every architectural decision, feature, and system must genuinely improve the user's
    experience and safeguard their autonomy.
@@ -46,9 +46,9 @@ Ruthless Inquiry & Ego-less Discourse:
    We attack flawed logic, never the individual. We argue with empirical truth, and we concede to superior reasoning regardless of
    hierarchy. Ego is secondary to the technical truth.
 
-
-II. The Autonomous Standard (AI & Machine Learning)
+The Autonomous Standard for AI and Machine Learning
 ===================================================
+
 Human-Centric Alignment:
    AI systems must be designed to serve human interests, augment human capabilities, and defer to human agency.
 
@@ -65,9 +65,9 @@ The Fail-Safe:
    No autonomous system shall operate without human oversight. We ensure robust fail-safes and absolute override capabilities to
    prevent algorithmic harm.
 
+The Shared Evolution
+====================
 
-III. The Shared Evolution
-=========================
 Continuous Ascension:
    Both human contributors and AI models must evolve. We actively seek feedback, correct our limitations, and adapt our systems to
    align with the progress of humanity. Stagnation is contrary to our honor.
@@ -76,9 +76,9 @@ Recursive Amendment:
    This Code of Honor is subject to its own tenet of Ruthless Inquiry. It is a living framework. As our systems, threats, and
    understanding evolve, any tenet herein can be challenged, debated, and updated through rigorous logic and empirical consensus.
 
+The Pragmatic Mandate
+=====================
 
-IV. The Pragmatic Mandate
-=========================
 Good Faith Application:
    These tenets are an operational compass, not a weapon. We explicitly reject the manipulation of this code to stall development,
    litigate personal grievances, or enforce dogmatic purity over technical efficacy. When principles collide, we resolve the

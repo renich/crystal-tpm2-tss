@@ -1,0 +1,65 @@
+direction: right
+
+vars: {
+  d2-config: {
+    layout-engine: dagre
+    theme-id: 4
+    pad: 40
+    center: true
+  }
+}
+
+classes: {
+  milestone_container: {
+    style: {
+      stroke: "#2B6CB0"
+      stroke-width: 2
+      border-radius: 8
+      fill: "#F7FAFC"
+    }
+  }
+  task_done: {
+    shape: rectangle
+    style: {
+      stroke: "#2F855A"
+      stroke-width: 2
+      border-radius: 6
+      fill: "#C6F6D5"
+      font-color: "#22543D"
+      bold: true
+    }
+  }
+}
+
+m1_1: "Milestone 1.1: Core Framing, Cryptographic Primitives & Session Security" {
+  class: milestone_container
+
+  t101: "TASK-101 [Completed]\nTPMCommand, TPMResponse & TPMDevice\nFulfills: [FUNC-001], [TECH-001], [TECH-004]" {
+    class: task_done
+  }
+  t102: "TASK-102 [Completed]\nOpenSSL 3.5 P256Key & ReadPublic\nFulfills: [FUNC-002], [TECH-002], [TECH-005]" {
+    class: task_done
+  }
+  t103: "TASK-103 [Completed]\nKDFKeyManager, Session & ParameterEncryption\nFulfills: [FUNC-004], [TECH-003], [TECH-005]" {
+    class: task_done
+  }
+  t104: "TASK-104 [Completed]\nBounded O(1) SignatureRTracker\nFulfills: [FUNC-005], [TECH-003], [TECH-004], [TECH-005]" {
+    class: task_done
+  }
+
+  t101 -> t102: "Unblocks"
+  t101 -> t103: "Unblocks"
+  t101 -> t104: "Unblocks"
+}
+
+m1_2: "Milestone 1.2: Stateful FIDO2 Orchestration & Zero-Defect QA" {
+  class: milestone_container
+
+  t105: "TASK-105 [Completed]\nFIDO2CredentialManager, NVMetadataStore & QA\nFulfills: [FUNC-003], [TECH-002], [TECH-004], [TECH-005]" {
+    class: task_done
+  }
+}
+
+m1_1.t102 -> m1_2.t105: "Critical Path"
+m1_1.t103 -> m1_2.t105: "Critical Path"
+m1_1.t104 -> m1_2.t105: "Critical Path"

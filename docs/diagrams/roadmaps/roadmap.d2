@@ -1,0 +1,71 @@
+direction: right
+
+vars: {
+  d2-config: {
+    layout-engine: dagre
+    theme-id: 4
+    pad: 40
+    center: true
+  }
+}
+
+classes: {
+  phase_done: {
+    shape: step
+    style: {
+      stroke: "#2F855A"
+      stroke-width: 2
+      fill: "#C6F6D5"
+      font-color: "#22543D"
+      bold: true
+    }
+  }
+  phase_planned: {
+    shape: step
+    style: {
+      stroke: "#DD6B20"
+      stroke-width: 2
+      fill: "#FEEBC8"
+      font-color: "#7B341E"
+      bold: true
+    }
+  }
+  milestone_box: {
+    shape: rectangle
+    style: {
+      stroke: "#3182CE"
+      stroke-width: 2
+      border-radius: 6
+      fill: "#EBF8FF"
+      font-color: "#1A365D"
+    }
+  }
+}
+
+phase1: "Phase 1: MVP v0.4.0\nStatus: Completed\n[FUNC-001..005]/[TECH-001..005]" {
+  class: phase_done
+
+  m1_1: "Milestone 1.1\nWire Framing, P-256, KDFa\n& O(1) Nonce-Reuse Guard" {
+    class: milestone_box
+  }
+  m1_2: "Milestone 1.2\nFIDO2CredentialManager,\nNVMetadataStore & QA" {
+    class: milestone_box
+  }
+
+  m1_1 -> m1_2: "Unblocks"
+}
+
+phase2: "Phase 2: Enhancement v0.5.0\nStatus: Planned\n[FUNC-006..007]/[TECH-005..007]" {
+  class: phase_planned
+
+  m2_1: "Milestone 2.1\nTCG Part 2 Wire-Level\nBinary Struct Marshaling" {
+    class: milestone_box
+  }
+  m2_2: "Milestone 2.2\nSalted/Bound HMAC &\nPolicyPCR Hardware Sessions" {
+    class: milestone_box
+  }
+
+  m2_1 -> m2_2: "Unblocks"
+}
+
+phase1 -> phase2: "v0.4.0 Baseline Complete"

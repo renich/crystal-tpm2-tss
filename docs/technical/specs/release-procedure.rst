@@ -5,17 +5,17 @@ Release Procedure and Versioning Playbook
 Overview
 --------
 
-This document defines the deterministic, repeatable release workflow for ``crystal-tpm2-tss``. It enforces Semantic Versioning (SemVer 2.0.0), Keep a Changelog 1.1.0 compliance, multi-file version alignment, local pre-push linting, signed GPG Git tags, and automated GitLab CI release artifact creation.
+This document defines the deterministic, repeatable release workflow for ``crystal-tpm2-tss``. It enforces Semantic Versioning 2.0.0, Keep a Changelog 1.1.0 compliance, multi-file version alignment, local pre-push linting, signed GPG Git tags, and automated GitLab CI release artifact creation.
 
 Requirement Mapping
 -------------------
 
-Fulfills ``[FUNC-001]``..``[FUNC-005]``.
+Fulfills ``[FUNC-001]`` in :doc:`../../functional/specs/core-requirements`.
 
 Multi-File Version Alignment Checklist
 --------------------------------------
 
-Prior to tagging any release, the version string (e.g. ``0.4.0``) must be updated across the codebase:
+Prior to tagging any release, the version string must be updated across the codebase:
 
 #. **``shard.yml``**:
 
