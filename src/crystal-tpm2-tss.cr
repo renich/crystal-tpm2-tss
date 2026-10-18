@@ -1,5 +1,8 @@
+# Native Crystal TPM 2.0 Software Stack (TSS) with hardware-backed KDF
+# persistence, session-based authorization, parameter encryption, and
+# FIDO2/CTAP2 credential management.
 module Crystal::Tpm2::Tss
-  VERSION = "0.2.1"
+  VERSION = "0.3.0"
 end
 
 require "./crystal-tpm2-tss/types"

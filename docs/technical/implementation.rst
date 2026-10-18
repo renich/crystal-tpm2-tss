@@ -12,8 +12,8 @@ To ensure KDF key persistence across reboots, the implementation utilizes TPM NV
 
    class KDFKeyManager
      @kdf_nv_index : UInt32 = 0x01C00000_u32
-     
-     def get_kdf_key : Bytes
+
+     def kdf_key : Bytes
        # Try to read from NV
        # If not exists, generate and store
        # Key persists across reboots
@@ -28,9 +28,9 @@ To derive the auth value, a domain-separated KDF is used from the ``credential_i
 .. code-block:: crystal
 
    def derive_auth_value(credential_id : String) : Bytes
-     kdf_key = @kdf_manager.get_kdf_key
+     kdf_key = @kdf_manager.kdf_key
      label = "FIDO2-AUTH-v1"
-     OpenSSL::HMAC.digest("SHA256", kdf_key, label + credential_id)
+     OpenSSL::HMAC.digest(OpenSSL::Algorithm::SHA256, kdf_key, label + credential_id)
    end
 
 Highlights

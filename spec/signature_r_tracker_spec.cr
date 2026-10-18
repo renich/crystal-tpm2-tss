@@ -1,28 +1,43 @@
 require "./spec_helper"
 
 describe "SignatureRTracker" do
-  it "adds and tracks elements" do
-    tracker = SignatureRTracker.new(10)
-    tracker.add("AABBCC")
-    tracker.includes?("AABBCC").should be_true
-    tracker.includes?("DDEEFF").should be_false
+  it "rejects non-positive max_size" do
+    expect_raises(ArgumentError, "max_size must be positive") do
+      SignatureRTracker.new(0)
+    end
   end
 
-  it "trims elements when max size is reached" do
-    tracker = SignatureRTracker.new(4)
-    tracker.add("11")
-    tracker.add("22")
-    tracker.add("33")
-    tracker.add("44")
-    tracker.add("55") # exceeding size (4)
+  it "adds and tracks elements and detects reuse via check_and_add!" do
+    tracker = SignatureRTracker.new(10)
+    tracker.check_and_add!("AABBCC")
+    tracker.includes?("AABBCC").should be_true
+    tracker.includes?("DDEEFF").should be_false
 
-    # max_size is 4. When it reaches 5 (> 4), it keeps the latest half or sorted half.
-    # As per implementation: sorted = @r_values.to_a.sort; @r_values = sorted[@max_size//2..-1].to_set
-    # "11", "22", "33", "44", "55" -> sort -> "11", "22", "33", "44", "55"
-    # size=4, 4//2 = 2. sorted[2..-1] -> "33", "44", "55"
-    # So "11" and "22" should be gone, "33", "44", "55" should be kept
-    tracker.includes?("11").should be_false
-    tracker.includes?("33").should be_true
-    tracker.includes?("55").should be_true
+    expect_raises(SecurityError, "ECDSA nonce reuse detected!") do
+      tracker.check_and_add!("AABBCC")
+    end
+  end
+
+  it "evicts oldest elements in true FIFO insertion order regardless of lexicographical order" do
+    tracker = SignatureRTracker.new(4)
+    tracker.add("FF")
+    tracker.add("AA")
+    tracker.add("BB")
+    tracker.add("CC")
+    tracker.add("DD")
+
+    tracker.includes?("FF").should be_false
+    tracker.includes?("AA").should be_false
+    tracker.includes?("BB").should be_true
+    tracker.includes?("CC").should be_true
+    tracker.includes?("DD").should be_true
+  end
+
+  it "evicts properly when max_size is 1" do
+    tracker = SignatureRTracker.new(1)
+    tracker.add("first")
+    tracker.add("second")
+    tracker.includes?("first").should be_false
+    tracker.includes?("second").should be_true
   end
 end

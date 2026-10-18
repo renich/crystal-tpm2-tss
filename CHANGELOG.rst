@@ -4,11 +4,27 @@ Changelog
 
 All notable changes to this project will be documented in this file.
 
-The format is based on `Keep a Changelog <https://keepachangelog.com/en/1.1.0/>`_,
-and this project adheres to `Semantic Versioning <https://semver.org/spec/v2.0.0.html>`_.
+The format is based on `Keep a Changelog <https://keepachangelog.com/en/1.1.0/>`__,
+and this project adheres to `Semantic Versioning <https://semver.org/spec/v2.0.0.html>`__.
 
 [Unreleased]
 ============
+
+[0.3.0] - 2026-10-18
+====================
+
+.. rubric:: Security
+
+- Implemented full TPM 2.0 command lifecycle (``Create``, ``Load``, ``EvictControl``, ``FlushContext``, ``NV_DEFINESPACE``, ``NV_WRITE``, ``NV_READ``, ``Sign``) and NV linear probing in ``FIDO2CredentialManager``.
+- Added AES-128-CFB session parameter encryption and decryption alongside KDFa XOR in ``ParameterEncryption``.
+- Enforced fail-closed hardware device I/O in ``TPMDevice`` using stack-allocated buffers and eliminated TOCTOU file checks.
+- Added atomic ``SignatureRTracker#check_and_add!`` and thread-safe mutex synchronization across ``Session`` and ``KDFKeyManager``.
+- Validated non-zero ECDSA signature ``(r, s)`` components and overflow-safe ``TPMResponse.parse`` session area bounds.
+
+.. rubric:: Changed
+
+- Converted ``ECDSASignature`` to an immutable value ``struct`` and added ``TPMCommand.build_password_auth`` to deduplicate password session framing.
+- Upgraded minimum Crystal version to ``>= 1.21.0`` and overhauled ``GNUmakefile`` and ``.gitlab-ci.yml``.
 
 [0.2.1] - 2026-09-19
 ====================

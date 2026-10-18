@@ -14,8 +14,8 @@ We build software and autonomous systems to empower humanity, foster transparenc
 exploitation, manipulation, and the degradation of user autonomy. This is our shared ethos.
 
 
-I. The Human Standard (Design & Development)
-============================================
+The Human Standard for Design and Development
+=============================================
 Empowerment Over Exploitation:
    Technology exists to serve human needs. Every architectural decision, feature, and system must genuinely improve the user's
    experience and safeguard their autonomy.
@@ -47,7 +47,7 @@ Ruthless Inquiry & Ego-less Discourse:
    hierarchy. Ego is secondary to the technical truth.
 
 
-II. The Autonomous Standard (AI & Machine Learning)
+The Autonomous Standard for AI and Machine Learning
 ===================================================
 Human-Centric Alignment:
    AI systems must be designed to serve human interests, augment human capabilities, and defer to human agency.
@@ -66,8 +66,8 @@ The Fail-Safe:
    prevent algorithmic harm.
 
 
-III. The Shared Evolution
-=========================
+The Shared Evolution
+====================
 Continuous Ascension:
    Both human contributors and AI models must evolve. We actively seek feedback, correct our limitations, and adapt our systems to
    align with the progress of humanity. Stagnation is contrary to our honor.
@@ -77,8 +77,8 @@ Recursive Amendment:
    understanding evolve, any tenet herein can be challenged, debated, and updated through rigorous logic and empirical consensus.
 
 
-IV. The Pragmatic Mandate
-=========================
+The Pragmatic Mandate
+=====================
 Good Faith Application:
    These tenets are an operational compass, not a weapon. We explicitly reject the manipulation of this code to stall development,
    litigate personal grievances, or enforce dogmatic purity over technical efficacy. When principles collide, we resolve the

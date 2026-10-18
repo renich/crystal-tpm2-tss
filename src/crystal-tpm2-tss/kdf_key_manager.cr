@@ -2,6 +2,7 @@ require "sync/mutex"
 require "openssl"
 
 module Crystal::Tpm2::Tss
+  # Manages persistent KDF master keys stored in TPM 2.0 Non-Volatile (NV) memory.
   class KDFKeyManager
     getter tpm : TPMDevice
     getter kdf_nv_index : UInt32
@@ -14,27 +15,23 @@ module Crystal::Tpm2::Tss
       @tpm : TPMDevice,
       @platform_secret : Bytes = Random::Secure.random_bytes(32),
       @kdf_nv_index : UInt32 = 0x01C00000_u32,
-    )
+    ) : Nil
       @mutex = Sync::Mutex.new
       @kdf_key = nil
     end
 
     def kdf_key : Bytes
-      if kdf_key_val = @kdf_key
-        return kdf_key_val
-      end
-
       @mutex.synchronize do
         if kdf_key_val = @kdf_key
-          return kdf_key_val
+          return kdf_key_val.dup
         end
 
         begin
           key_data = read_kdf_key_from_nv
           @kdf_key = key_data
-          key_data
+          key_data.dup
         rescue TPMError
-          create_and_store_kdf_key
+          create_and_store_kdf_key.dup
         end
       end
     end
@@ -70,9 +67,9 @@ module Crystal::Tpm2::Tss
       command.params = serialize_nv_define_params(nv_index, public_info)
 
       response = @tpm.execute(command)
-      unless response.success? || response.code == TPM2::ResponseCodes::NV_DEFINED
-        raise TPMError.new("Failed to define NV index", response.code)
-      end
+      return if response.success? || response.code == TPM2::ResponseCodes::NV_DEFINED
+
+      raise TPMError.new("Failed to define NV index", response.code)
     end
 
     private def write_kdf_key_to_nv(key : Bytes, auth_value : Bytes) : Nil
@@ -82,9 +79,9 @@ module Crystal::Tpm2::Tss
       command.params = serialize_nv_write_params(0_u16, key)
 
       response = @tpm.execute(command)
-      unless response.success?
-        raise TPMError.new("Failed to write KDF key", response.code)
-      end
+      return if response.success?
+
+      raise TPMError.new("Failed to write KDF key", response.code)
     end
 
     private def derive_nv_auth : Bytes
@@ -118,14 +115,7 @@ module Crystal::Tpm2::Tss
     end
 
     private def build_password_auth(auth_value : Bytes) : Bytes
-      io = IO::Memory.new
-      io.write_bytes(1_u32, TPM2::ENDIAN)
-      io.write_bytes(TPM2::Handles::PW, TPM2::ENDIAN)
-      io.write_bytes(0_u16, TPM2::ENDIAN)
-      io.write_byte(TPM2::SessionAttributes::CONTINUESESSION)
-      io.write_bytes(auth_value.size.to_u16, TPM2::ENDIAN)
-      io.write(auth_value)
-      io.to_slice
+      TPMCommand.build_password_auth(auth_value)
     end
 
     private def serialize_nv_define_params(nv_index : UInt32, public_info : Bytes) : Bytes

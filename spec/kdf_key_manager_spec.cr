@@ -1,17 +1,26 @@
 require "./spec_helper"
 
 describe "KDFKeyManager" do
-  it "creates KDF key when NV index is missing" do
+  it "creates and caches KDF key when NV read initially fails" do
     tpm = MockTPMDevice.new
-    # simulate read failure
-    tpm.next_response = TPMResponse.new(TPM2::Tag::NO_SESSIONS, 0, 0x00000146_u32) # NV_UNINITIALIZED or similar error
+    tpm.enqueue_response(TPMResponse.new(TPM2::Tag::NO_SESSIONS, 10_u32, 0x00000146_u32))
+    tpm.enqueue_response(TPMResponse.new(TPM2::Tag::SESSIONS, 10_u32, 0_u32))
+    tpm.enqueue_response(TPMResponse.new(TPM2::Tag::SESSIONS, 10_u32, 0_u32))
+
+    manager = KDFKeyManager.new(tpm)
+    key = manager.kdf_key
+    key.size.should eq(32)
+    manager.kdf_key.should eq(key)
+    tpm.executed_commands.size.should eq(3)
+  end
+
+  it "raises TPMError when NV definition fails after missing key" do
+    tpm = MockTPMDevice.new
+    tpm.next_response = TPMResponse.new(TPM2::Tag::NO_SESSIONS, 10_u32, 0x00000146_u32)
 
     manager = KDFKeyManager.new(tpm)
 
-    expect_raises(TPMError) do
-      # In the actual flow it tries to read, fails, then defines and writes.
-      # Because mock doesn't handle sequential responses well yet without custom logic,
-      # this should fail if not properly mocked, which is fine for TDD.
+    expect_raises(TPMError, "Failed to define NV index") do
       manager.kdf_key
     end
   end

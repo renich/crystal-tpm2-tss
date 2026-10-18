@@ -1,9 +1,10 @@
 require "./spec_helper"
 
+# Mock TPM device returning an ordered sequence of pre-configured responses.
 class MultiResponseMockTPM < TPMDevice
   property responses : Array(TPMResponse)
 
-  def initialize(@responses : Array(TPMResponse))
+  def initialize(@responses : Array(TPMResponse)) : Nil
     super("/dev/null")
   end
 
@@ -18,14 +19,10 @@ end
 
 describe "KDFKeyManager Success" do
   it "creates and stores KDF key successfully" do
-    # 1. read fails (raises TPMError)
-    # 2. define_nv_index succeeds (code 0)
-    # 3. write_kdf_key_to_nv succeeds (code 0)
-
     responses = [
-      TPMResponse.new(TPM2::Tag::NO_SESSIONS, 10, 0x0146_u32), # fail read
-      TPMResponse.new(TPM2::Tag::NO_SESSIONS, 10, 0),          # define success
-      TPMResponse.new(TPM2::Tag::NO_SESSIONS, 10, 0),          # write success
+      TPMResponse.new(TPM2::Tag::NO_SESSIONS, 10, 0x0146_u32),
+      TPMResponse.new(TPM2::Tag::NO_SESSIONS, 10, 0),
+      TPMResponse.new(TPM2::Tag::NO_SESSIONS, 10, 0),
     ]
     tpm = MultiResponseMockTPM.new(responses)
     manager = KDFKeyManager.new(tpm)
@@ -35,7 +32,6 @@ describe "KDFKeyManager Success" do
   end
 
   it "reads existing KDF key successfully" do
-    # mock read success
     io = IO::Memory.new
     io.write_bytes(32_u16, TPM2::ENDIAN)
     io.write(Bytes.new(32, 0x77_u8))
