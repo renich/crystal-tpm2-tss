@@ -1,6 +1,6 @@
 # GNUmakefile for Sphinx Documentation Suite
 SHELL := /bin/bash
-.SHELLFLAGS := -euo pipefail -c
+.SHELLFLAGS := -ec
 
 SPHINXBUILD ?= sphinx-build
 SPHINXAUTOBUILD ?= sphinx-autobuild
