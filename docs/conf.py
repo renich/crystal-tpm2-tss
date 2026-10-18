@@ -4,7 +4,7 @@
 project = 'crystal-tpm2-tss'
 copyright = '2026, Rénich Bon Ćirić (Copyleft)'
 author = 'Rénich Bon Ćirić'
-release = '0.4.0'
+release = '0.4.1'
 
 extensions = [
     'sphinx.ext.autodoc',

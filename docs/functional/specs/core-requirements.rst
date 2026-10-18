@@ -36,11 +36,11 @@ Traceability Matrix
    * - ``[FUNC-006]``
      - Full TCG TPM 2.0 Part 2 Binary Structure Marshaling
      - ``[TECH-005]``, ``[TECH-006]``
-     - ``TASK-201``, ``TASK-202`` (Phase 2 ``v0.5.0``)
+     - ``TASK-201``, ``TASK-202`` (Phase 2 ``v0.4.1``)
    * - ``[FUNC-007]``
      - Hardware Salted/Bound HMAC and ``PolicyPCR`` Session Lifecycle
      - ``[TECH-005]``, ``[TECH-007]``
-     - ``TASK-203``, ``TASK-204`` (Phase 2 ``v0.5.0``)
+     - ``TASK-203``, ``TASK-204`` (Phase 2 ``v0.4.1``)
 
 Phase 1 Functional Requirements
 -------------------------------
@@ -64,7 +64,7 @@ Phase 2 Functional Requirements
 -------------------------------
 
 * **[FUNC-006] Full TCG TPM 2.0 Part 2 Binary Structure Marshaling**:
-  Targeted for Phase 2 ``v0.5.0``, ``Tpm2bCodec`` must provide deterministic binary encoders and decoders for TCG TPM 2.0 Part 2 wire structures required by physical ``/dev/tpmrm0`` hardware command execution, including ``TPMS_AUTH_COMMAND``, ``TPMS_AUTH_RESPONSE``, ``TPM2B_SENSITIVE_CREATE``, ``TPM2B_PUBLIC``, ``TPMS_ECC_PARMS``, and ``TPMT_SIGNATURE``. All decoders must enforce strict big-endian length prefix validation and reject truncated or trailing bytes with ``TPMError``. Fulfilled by ``[TECH-006]`` in :doc:`../../technical/specs/architecture-overview` and ``[TECH-005]`` in :doc:`../../technical/specs/threat-model`.
+  Delivered in Phase 2 ``v0.4.1``, ``Tpm2bCodec`` must provide deterministic binary encoders and decoders for TCG TPM 2.0 Part 2 wire structures required by physical ``/dev/tpmrm0`` hardware command execution, including ``TPMS_AUTH_COMMAND``, ``TPMS_AUTH_RESPONSE``, ``TPM2B_SENSITIVE_CREATE``, ``TPM2B_PUBLIC``, ``TPMS_ECC_PARMS``, and ``TPMT_SIGNATURE``. All decoders must enforce strict big-endian length prefix validation and reject truncated or trailing bytes with ``TPMError``. Fulfilled by ``[TECH-006]`` in :doc:`../../technical/specs/architecture-overview` and ``[TECH-005]`` in :doc:`../../technical/specs/threat-model`.
 
 * **[FUNC-007] Hardware Salted/Bound HMAC and PolicyPCR Session Lifecycle**:
-  Targeted for Phase 2 ``v0.5.0``, ``Session`` and ``TPMDevice`` must implement the full hardware session lifecycle across ``TPM2_StartAuthSession``, ``TPM2_PolicyPCR``, and ``TPM2_FlushContext``. ``Session`` must support salted and bound session key derivation via ``KDFa``, maintain rolling ``nonceCaller`` and ``nonceTPM`` state across multi-command policy sequences, and automatically attach and verify ``TPMS_AUTH_COMMAND`` and ``TPMS_AUTH_RESPONSE`` frames during ``TPMDevice#execute``. Fulfilled by ``[TECH-007]`` in :doc:`../../technical/specs/architecture-overview` and ``[TECH-005]`` in :doc:`../../technical/specs/threat-model`.
+  Delivered in Phase 2 ``v0.4.1``, ``Session`` and ``TPMDevice`` must implement the full hardware session lifecycle across ``TPM2_StartAuthSession``, ``TPM2_PolicyPCR``, and ``TPM2_FlushContext``. ``Session`` must support salted and bound session key derivation via ``KDFa``, maintain rolling ``nonceCaller`` and ``nonceTPM`` state across multi-command policy sequences, and automatically attach and verify ``TPMS_AUTH_COMMAND`` and ``TPMS_AUTH_RESPONSE`` frames during ``TPMDevice#execute``. Fulfilled by ``[TECH-007]`` in :doc:`../../technical/specs/architecture-overview` and ``[TECH-005]`` in :doc:`../../technical/specs/threat-model`.

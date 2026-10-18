@@ -6,26 +6,45 @@ module Crystal::Tpm2::Tss
     # Path to the character device (e.g., `"/dev/tpmrm0"`), or `nil` when operating in virtual mode.
     getter device_path : String?
 
-    @nv_store : Hash(UInt32, Bytes)
-    @key_store : Hash(UInt32, P256Key)
-    @pending_key : P256Key?
-    @mutex : Sync::Mutex
+    @nv_store = Hash(UInt32, Bytes).new
+    @key_store = Hash(UInt32, P256Key).new
+    @pending_key : P256Key? = nil
+    @mutex = Sync::Mutex.new
 
     # Initializes a new `TPMDevice` in virtual simulation mode (`nil`) or bound to a hardware path.
     def initialize(@device_path : String? = nil) : Nil
-      @nv_store = Hash(UInt32, Bytes).new
-      @key_store = Hash(UInt32, P256Key).new
-      @pending_key = nil
-      @mutex = Sync::Mutex.new
     end
 
     # Executes a `TPMCommand` against either the hardware transport or the stateful virtual simulator.
     def execute(command : TPMCommand, session : Session? = nil) : TPMResponse
-      if path = @device_path
-        execute_hardware(path, command, session)
-      else
-        execute_virtual(command, session)
-      end
+      attach_command_session_auth(command, session)
+      resp = if path = @device_path
+               execute_hardware(path, command, session)
+             else
+               execute_virtual(command, session)
+             end
+      verify_session_response_auth(resp, session)
+      resp
+    end
+
+    private def attach_command_session_auth(command : TPMCommand, session : Session?) : Nil
+      return unless active = session
+      return if active.session_key.empty?
+
+      active.roll_nonce
+      command.tag = TPM2::Tag::SESSIONS
+      auth_val = command.auth_area.empty? ? Bytes.empty : active.last_auth_value
+      command.auth_area = TPMCommand.build_session_auth(active, auth_val, command.code, command.params)
+    end
+
+    private def verify_session_response_auth(resp : TPMResponse, session : Session?) : Nil
+      return unless active = session
+      return if active.session_key.empty? || resp.tag != TPM2::Tag::SESSIONS
+
+      decoded = Tpm2bCodec.decode_auth_response(resp.auth_area)
+      active.update_nonce_tpm(decoded[:nonce])
+      return if active.verify_response_hmac(active.last_auth_value, resp.code, resp.params, decoded[:hmac])
+      raise SecurityError.new("TPM response session HMAC verification failed")
     end
 
     private def execute_hardware(path : String, command : TPMCommand, session : Session?) : TPMResponse
@@ -42,9 +61,22 @@ module Crystal::Tpm2::Tss
 
     private def execute_virtual(command : TPMCommand, session : Session?) : TPMResponse
       @mutex.synchronize do
-        session.try(&.update_nonce_tpm(Random::Secure.random_bytes(session.hash_output_size)))
-        dispatch_virtual_command(command)
+        resp = dispatch_virtual_command(command)
+        attach_virtual_session_response(resp, session)
+        resp
       end
+    end
+
+    private def attach_virtual_session_response(resp : TPMResponse, session : Session?) : Nil
+      return unless active = session
+
+      nonce_tpm = Random::Secure.random_bytes(active.hash_output_size)
+      active.update_nonce_tpm(nonce_tpm)
+      return if active.session_key.empty?
+
+      hmac = active.compute_response_hmac(active.last_auth_value, resp.code, resp.params)
+      resp.tag = TPM2::Tag::SESSIONS
+      resp.auth_area = Tpm2bCodec.encode_auth_response(nonce_tpm, active.attrs, hmac)
     end
 
     private def dispatch_virtual_command(command : TPMCommand) : TPMResponse
@@ -178,16 +210,8 @@ module Crystal::Tpm2::Tss
       key = (@key_store[handle] ||= P256Key.new)
       digest = command.params.size >= 34 ? command.params[2, 32] : Random::Secure.random_bytes(32)
       sig = key.sign_digest(digest)
-
-      io = IO::Memory.new(72)
-      io.write_bytes(TPM2::Algorithms::ECDSA, TPM2::ENDIAN)
-      io.write_bytes(TPM2::Algorithms::SHA256, TPM2::ENDIAN)
-      io.write_bytes(32_u16, TPM2::ENDIAN)
-      io.write(sig.r)
-      io.write_bytes(32_u16, TPM2::ENDIAN)
-      io.write(sig.s)
       resp = TPMResponse.new(TPM2::Tag::SESSIONS, 82_u32, 0_u32)
-      resp.params = io.to_slice
+      resp.params = Tpm2bCodec.encode_tpmt_signature(sig)
       resp
     end
   end

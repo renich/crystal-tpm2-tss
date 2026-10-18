@@ -10,13 +10,16 @@ and this project adheres to `Semantic Versioning <https://semver.org/spec/v2.0.0
 [Unreleased]
 ============
 
+[0.4.1] - 2026-10-18
+====================
+
 .. rubric:: Added
 
-- Added Phase 2 ``v0.5.0`` functional and technical specifications ``[FUNC-006]``, ``[FUNC-007]``, ``[TECH-006]``, and ``[TECH-007]`` covering ``Tpm2bCodec`` TCG TPM 2.0 Part 2 binary structure marshaling and hardware salted/bound HMAC and ``PolicyPCR`` session lifecycles.
-- Added ``ADR-002`` in ``docs/adrs/2026-10-18-phase-2-tcg-part2-marshaling-and-policypcr.rst`` documenting the architectural decision for Phase 2 wire marshaling and PCR policy sessions.
-- Added dependency-tracked phased roadmaps in ``docs/project/roadmap.rst``, ``docs/project/roadmaps/phase-1-mvp.rst`` covering ``TASK-101``..``TASK-105``, and ``docs/project/roadmaps/phase-2-enhancement.rst`` covering ``TASK-201``..``TASK-204`` with explicit ``Fulfills``, ``Blocked By``, ``Unblocks``, and ``Critical Path`` chains.
-- Added D2 source diagrams and compiled SVG visual artifacts in ``docs/diagrams/architecture.d2``, ``docs/diagrams/roadmaps/roadmap.d2``, ``docs/diagrams/roadmaps/phase-1-mvp.d2``, and ``docs/diagrams/roadmaps/phase-2-enhancement.d2``.
-- Added project visual assets ``assets/icon.svg`` and customized ``assets/banner.svg``, and aligned ``README.md`` and ``CONTRIBUTING.rst`` with the canonical ``init/lib`` shard standard.
+- Implemented ``Tpm2bCodec`` in ``src/crystal-tpm2-tss/tpm2b_codec.cr`` providing deterministic big-endian TCG TPM 2.0 Part 2 binary marshaling and unmarshaling for ``TPM2B`` length-prefixed buffers, ``TPMS_AUTH_COMMAND``, ``TPMS_AUTH_RESPONSE``, ``TPM2B_SENSITIVE_CREATE``, ``TPM2B_PUBLIC`` with nested ``TPMS_ECC_PARMS``, and ``TPMT_SIGNATURE``, fulfilling ``[FUNC-006]`` and ``[TECH-006]``.
+- Implemented ``Session.start_auth_session``, ``Session#policy_pcr``, and ``Session#flush`` alongside ``TPM2::Commands::PolicyPCR`` (``0x0000017f_u32``) in ``Session`` and ``TPMDevice``, supporting salted and bound ``sessionKey`` derivation via ``ParameterEncryption.kdfa`` and cumulative SHA-256 ``PolicyPCR`` digest extension, fulfilling ``[FUNC-007]`` and ``[TECH-007]``.
+- Added automatic ``TPMS_AUTH_COMMAND`` session attachment, caller nonce rolling, and constant-time ``TPMS_AUTH_RESPONSE`` HMAC verification inside ``TPMDevice#execute(command, session)``.
+- Added ``ADR-002`` in ``docs/adrs/2026-10-18-phase-2-tcg-part2-marshaling-and-policypcr.rst`` and dependency-tracked phased roadmaps in ``docs/project/roadmap.rst``, ``docs/project/roadmaps/phase-1-mvp.rst``, and ``docs/project/roadmaps/phase-2-enhancement.rst``.
+- Added D2 source diagrams and compiled SVG visual artifacts in ``docs/diagrams/architecture.d2``, ``docs/diagrams/roadmaps/roadmap.d2``, ``docs/diagrams/roadmaps/phase-1-mvp.d2``, and ``docs/diagrams/roadmaps/phase-2-enhancement.d2``, plus ``assets/icon.svg`` and ``assets/banner.svg``.
 
 [0.4.0] - 2026-10-18
 ====================

@@ -2,7 +2,7 @@ module Crystal::Tpm2::Tss
   # Represents a TPM 2.0 command packet with header, handles, authorization area, and parameters.
   class TPMCommand
     # Structure tag (`TPM2::Tag::NO_SESSIONS` or `TPM2::Tag::SESSIONS`).
-    getter tag : UInt16
+    property tag : UInt16
 
     # Command code (`TPM_CC`).
     getter code : UInt32
@@ -25,14 +25,12 @@ module Crystal::Tpm2::Tss
 
     # Builds a TPM 2.0 `TPM_RS_PW` password authorization area (`TPMS_AUTH_COMMAND`).
     def self.build_password_auth(auth_value : Bytes) : Bytes
-      io = IO::Memory.new
-      io.write_bytes(1_u32, TPM2::ENDIAN)
-      io.write_bytes(TPM2::Handles::PW, TPM2::ENDIAN)
-      io.write_bytes(0_u16, TPM2::ENDIAN)
-      io.write_byte(TPM2::SessionAttributes::CONTINUESESSION)
-      io.write_bytes(auth_value.size.to_u16, TPM2::ENDIAN)
-      io.write(auth_value)
-      io.to_slice
+      Tpm2bCodec.encode_auth_command(
+        TPM2::Handles::PW,
+        Bytes.empty,
+        TPM2::SessionAttributes::CONTINUESESSION,
+        auth_value
+      )
     end
 
     # Builds an HMAC session authorization area (`TPMS_AUTH_COMMAND`) for `command_code` and `params`.
@@ -43,16 +41,7 @@ module Crystal::Tpm2::Tss
       params : Bytes,
     ) : Bytes
       hmac = session.compute_hmac(auth_value, command_code, params)
-      nonce = session.nonce_caller
-      io = IO::Memory.new(13 + nonce.size + hmac.size)
-      io.write_bytes(1_u32, TPM2::ENDIAN)
-      io.write_bytes(session.handle, TPM2::ENDIAN)
-      io.write_bytes(nonce.size.to_u16, TPM2::ENDIAN)
-      io.write(nonce)
-      io.write_byte(session.attrs)
-      io.write_bytes(hmac.size.to_u16, TPM2::ENDIAN)
-      io.write(hmac)
-      io.to_slice
+      Tpm2bCodec.encode_auth_command(session.handle, session.nonce_caller, session.attrs, hmac)
     end
 
     # Builds the `TPM2B_SENSITIVE_CREATE` and `TPM2B_PUBLIC` parameters for a NIST P-256 ECDSA key.

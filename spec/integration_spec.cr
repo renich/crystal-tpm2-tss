@@ -1,5 +1,6 @@
 require "./spec_helper"
 
+# Verifies [FUNC-001], [FUNC-002], [FUNC-003], [FUNC-004], [FUNC-005] / [TECH-001], [TECH-002], [TECH-003]
 describe "TPM2-TSS Integration" do
   it "executes an end-to-end FIDO2 credential creation, NV retrieval, and ECDSA signing flow" do
     tpm = TPMDevice.new

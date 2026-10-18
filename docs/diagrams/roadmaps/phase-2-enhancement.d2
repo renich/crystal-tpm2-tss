@@ -12,20 +12,20 @@ vars: {
 classes: {
   milestone_container: {
     style: {
-      stroke: "#DD6B20"
+      stroke: "#2B6CB0"
       stroke-width: 2
       border-radius: 8
-      fill: "#FFFAF0"
+      fill: "#F7FAFC"
     }
   }
-  task_planned: {
+  task_done: {
     shape: rectangle
     style: {
-      stroke: "#C05621"
+      stroke: "#2F855A"
       stroke-width: 2
       border-radius: 6
-      fill: "#FEEBC8"
-      font-color: "#7B341E"
+      fill: "#C6F6D5"
+      font-color: "#22543D"
       bold: true
     }
   }
@@ -34,11 +34,11 @@ classes: {
 m2_1: "Milestone 2.1: TCG Part 2 Wire-Level Struct Marshaling" {
   class: milestone_container
 
-  t201: "TASK-201 [Planned]\nTpm2bCodec Command Struct Encoders\nFulfills: [FUNC-006], [TECH-006]" {
-    class: task_planned
+  t201: "TASK-201 [Completed]\nTpm2bCodec Command Struct Encoders\nFulfills: [FUNC-006], [TECH-006]" {
+    class: task_done
   }
-  t202: "TASK-202 [Planned]\nTpm2bCodec Response Decoders & Bounds\nFulfills: [FUNC-006], [TECH-005], [TECH-006]" {
-    class: task_planned
+  t202: "TASK-202 [Completed]\nTpm2bCodec Response Decoders & Bounds\nFulfills: [FUNC-006], [TECH-005], [TECH-006]" {
+    class: task_done
   }
 
   t201 -> t202: "Critical Path"
@@ -47,11 +47,11 @@ m2_1: "Milestone 2.1: TCG Part 2 Wire-Level Struct Marshaling" {
 m2_2: "Milestone 2.2: Salted/Bound HMAC & PolicyPCR Hardware Sessions" {
   class: milestone_container
 
-  t203: "TASK-203 [Planned]\nSalted/Bound StartAuthSession Handshake\nFulfills: [FUNC-007], [TECH-007]" {
-    class: task_planned
+  t203: "TASK-203 [Completed]\nSalted/Bound StartAuthSession Handshake\nFulfills: [FUNC-007], [TECH-007]" {
+    class: task_done
   }
-  t204: "TASK-204 [Planned]\nTPM2_PolicyPCR & Auto Session Framing\nFulfills: [FUNC-007], [TECH-005], [TECH-007]" {
-    class: task_planned
+  t204: "TASK-204 [Completed]\nTPM2_PolicyPCR & Auto Session Framing\nFulfills: [FUNC-007], [TECH-005], [TECH-007]" {
+    class: task_done
   }
 
   t203 -> t204: "Critical Path"

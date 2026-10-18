@@ -12,7 +12,7 @@ Add ``crystal-tpm2-tss`` to your project's ``shard.yml``:
    dependencies:
      crystal-tpm2-tss:
        gitlab: renich/crystal-tpm2-tss
-       version: ~> 0.4.0
+       version: ~> 0.4.1
 
 Install dependencies:
 
@@ -44,17 +44,17 @@ Require the library, provision a FIDO2 credential, sign a 32-byte digest, and ve
    puts "Public key Y: #{pub_y.hexstring}"
    puts "Signature valid? #{credential.verify(digest, signature)}"
 
-Session Parameter Encryption
-----------------------------
+Session Parameter Encryption and PolicyPCR
+------------------------------------------
 
-Encrypt and decrypt sensitive command parameters using TCG TPM 2.0 Part 1 KDFa ``XOR`` or ``AES-128-CFB``:
+Establish a salted/bound authorization session, extend a ``PolicyPCR`` digest, and encrypt sensitive command parameters using TCG TPM 2.0 Part 1 KDFa ``XOR`` or ``AES-128-CFB``:
 
 .. code-block:: crystal
 
-   session = Session.new(0x02000001.to_u32)
-   session.session_key = Random::Secure.random_bytes(32)
-   session.roll_nonce
-   session.update_nonce_tpm(Random::Secure.random_bytes(32))
+   session = Session.start_auth_session(tpm, auth_value: "entity-secret".to_slice)
+   pcr_digest = Random::Secure.random_bytes(32)
+   policy_digest = session.policy_pcr(tpm, 7_u32, pcr_digest)
 
    ciphertext = ParameterEncryption.encrypt("secret-pin".to_slice, session, "AES-CFB")
    plaintext = ParameterEncryption.decrypt(ciphertext, session, "AES-CFB")
+   session.flush(tpm)

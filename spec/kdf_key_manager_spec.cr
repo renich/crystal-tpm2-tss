@@ -1,5 +1,6 @@
 require "./spec_helper"
 
+# Verifies [FUNC-004] / [TECH-003]
 describe "KDFKeyManager" do
   it "creates and caches KDF key when NV read initially fails" do
     tpm = MockTPMDevice.new

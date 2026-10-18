@@ -1,5 +1,6 @@
 require "./spec_helper"
 
+# Verifies [FUNC-004] / [TECH-003]
 # Mock TPM device returning an ordered sequence of pre-configured responses.
 class MultiResponseMockTPM < TPMDevice
   property responses : Array(TPMResponse)

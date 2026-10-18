@@ -21,26 +21,26 @@ Prior to tagging any release, the version string must be updated across the code
 
    .. code-block:: yaml
 
-      version: 0.4.0
+      version: 0.4.1
 
 #. **``src/crystal-tpm2-tss.cr``**:
 
    .. code-block:: crystal
 
-      VERSION = "0.4.0"
+      VERSION = "0.4.1"
 
 #. **``docs/conf.py``**:
 
    .. code-block:: python
 
-      release = '0.4.0'
+      release = '0.4.1'
 
 #. **``CHANGELOG.rst``**:
    Promote items from ``[Unreleased]`` under a new version header using ``.. rubric::`` sections:
 
    .. code-block:: rst
 
-      [0.4.0] - 2026-10-18
+      [0.4.1] - 2026-10-18
       ====================
 
       .. rubric:: Added
@@ -71,7 +71,7 @@ Stage and commit version changes adhering to Conventional Commit standards:
 .. code-block:: bash
 
    git add shard.yml src/crystal-tpm2-tss.cr docs/conf.py CHANGELOG.rst
-   git commit -m "chore(release): bump version to 0.4.0"
+   git commit -m "chore(release): bump version to 0.4.1"
 
 Step 3: Create Signed Annotated Git Tag
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -80,7 +80,7 @@ Create a GPG-signed Git tag for the release:
 
 .. code-block:: bash
 
-   git tag -s v0.4.0 -m "Release v0.4.0"
+   git tag -s v0.4.1 -m "Release v0.4.1"
 
 Step 4: Push Branch and Tags to GitLab
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

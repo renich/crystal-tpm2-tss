@@ -1,5 +1,6 @@
 require "./spec_helper"
 
+# Verifies [FUNC-001], [FUNC-002] / [TECH-001], [TECH-002]
 describe "TPMDevice" do
   it "returns default response in virtual mode" do
     tpm = TPMDevice.new

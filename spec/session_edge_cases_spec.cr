@@ -1,5 +1,6 @@
 require "./spec_helper"
 
+# Verifies [FUNC-004], [FUNC-007] / [TECH-003], [TECH-007]
 # Reopens Session to expose hash output size for specification testing.
 class Crystal::Tpm2::Tss::Session
   def public_hash_output_size : Int32

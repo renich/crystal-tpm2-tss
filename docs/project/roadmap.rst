@@ -31,7 +31,7 @@ Phase Summary
      - ``[FUNC-001]``..``[FUNC-005]``, ``[TECH-001]``..``[TECH-005]``
      - Wire framing, OpenSSL 3.5 NIST P-256 verification, FIDO2 NV persistence, KDFa ``XOR``/``AES-128-CFB`` encryption, and ``O(1)`` ECDSA nonce-reuse tracking.
    * - :doc:`roadmaps/phase-2-enhancement`
-     - Planned ``v0.5.0``
+     - Completed ``v0.4.1``
      - ``[FUNC-006]``..``[FUNC-007]``, ``[TECH-005]``..``[TECH-007]``
      - ``Tpm2bCodec`` TCG Part 2 binary struct marshaling and hardware salted/bound HMAC and ``PolicyPCR`` session lifecycles.
 

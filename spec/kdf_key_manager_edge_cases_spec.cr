@@ -1,5 +1,6 @@
 require "./spec_helper"
 
+# Verifies [FUNC-004] / [TECH-003], [TECH-005]
 # Reopens KDFKeyManager to expose NV response parser for edge-case specification testing.
 class Crystal::Tpm2::Tss::KDFKeyManager
   def public_parse_nv_read_response(params : Bytes) : Bytes

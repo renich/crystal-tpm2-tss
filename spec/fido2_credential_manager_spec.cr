@@ -1,5 +1,6 @@
 require "./spec_helper"
 
+# Verifies [FUNC-002], [FUNC-003], [FUNC-005] / [TECH-002], [TECH-005]
 # Reopens FIDO2CredentialManager to expose internal credential helpers for specification testing.
 class Crystal::Tpm2::Tss::FIDO2CredentialManager
   # Exposes `create_fido2_credential` for unit testing.
@@ -86,9 +87,12 @@ describe "FIDO2CredentialManager" do
     tpm = MockTPMDevice.new
     manager = FIDO2CredentialManager.new(tpm)
 
-    resp = TPMResponse.new(TPM2::Tag::SESSIONS, 14, 0)
-    io = IO::Memory.new
-    io.write_bytes(12345_u32, TPM2::ENDIAN)
+    resp = TPMResponse.new(TPM2::Tag::SESSIONS, 78, 0)
+    io = IO::Memory.new(68)
+    io.write_bytes(32_u16, TPM2::ENDIAN)
+    io.write(Bytes.new(32, 0x11_u8))
+    io.write_bytes(32_u16, TPM2::ENDIAN)
+    io.write(Bytes.new(32, 0x22_u8))
     resp.params = io.to_slice
     tpm.next_response = resp
 

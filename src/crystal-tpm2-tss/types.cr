@@ -39,6 +39,8 @@ module Crystal::Tpm2::Tss
       ContextLoad = 0x00000161_u32
       # `TPM2_PCR_Read` command code (`0x0000017e`).
       PCR_READ = 0x0000017e_u32
+      # `TPM2_PolicyPCR` command code (`0x0000017f`).
+      PolicyPCR = 0x0000017f_u32
       # `TPM2_GetCapability` command code (`0x0000017a`).
       GetCapability = 0x0000017a_u32
     end

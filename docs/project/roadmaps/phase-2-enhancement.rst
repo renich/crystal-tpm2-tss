@@ -5,7 +5,7 @@ Phase 2: Enhancement
 Timeline and Objectives
 -----------------------
 
-Deliver the ``v0.5.0`` hardware interoperability release by implementing full TCG TPM 2.0 Part 2 binary structure marshaling in ``Tpm2bCodec`` and stateful salted/bound HMAC and ``PolicyPCR`` hardware authorization sessions over physical ``/dev/tpmrm0`` devices.
+Deliver the ``v0.4.1`` hardware interoperability release by implementing full TCG TPM 2.0 Part 2 binary structure marshaling in ``Tpm2bCodec`` and stateful salted/bound HMAC and ``PolicyPCR`` hardware authorization sessions over physical ``/dev/tpmrm0`` devices.
 
 Dependency Graph
 ----------------
@@ -20,7 +20,7 @@ Milestone 2.1: TCG Part 2 Wire-Level Struct Marshaling
 
 * **TASK-201: Tpm2bCodec Command Structure Encoders**:
 
-  * **Status**: Planned ``v0.5.0``
+  * **Status**: Completed ``v0.4.1``
   * **Fulfills**: ``[FUNC-006]``, ``[TECH-006]``
   * **Blocked By**: Phase 1 ``TASK-105``
   * **Unblocks**: ``TASK-202``
@@ -28,7 +28,7 @@ Milestone 2.1: TCG Part 2 Wire-Level Struct Marshaling
 
 * **TASK-202: Tpm2bCodec Response Structure Decoders and Boundary Fuzzing**:
 
-  * **Status**: Planned ``v0.5.0``
+  * **Status**: Completed ``v0.4.1``
   * **Fulfills**: ``[FUNC-006]``, ``[TECH-005]``, ``[TECH-006]``
   * **Blocked By**: ``TASK-201``
   * **Unblocks**: ``TASK-203``
@@ -39,7 +39,7 @@ Milestone 2.2: Salted/Bound HMAC and PolicyPCR Hardware Sessions
 
 * **TASK-203: Hardware Salted and Bound StartAuthSession Handshake**:
 
-  * **Status**: Planned ``v0.5.0``
+  * **Status**: Completed ``v0.4.1``
   * **Fulfills**: ``[FUNC-007]``, ``[TECH-007]``
   * **Blocked By**: ``TASK-202``
   * **Unblocks**: ``TASK-204``
@@ -47,10 +47,10 @@ Milestone 2.2: Salted/Bound HMAC and PolicyPCR Hardware Sessions
 
 * **TASK-204: TPM2_PolicyPCR Execution and Automatic Session Framing**:
 
-  * **Status**: Planned ``v0.5.0``
+  * **Status**: Completed ``v0.4.1``
   * **Fulfills**: ``[FUNC-007]``, ``[TECH-005]``, ``[TECH-007]``
   * **Blocked By**: ``TASK-203``
-  * **Unblocks**: ``v0.5.0`` Release
+  * **Unblocks**: ``v0.4.1`` Release
   * **Deliverable**: Implement ``TPM2_PolicyPCR`` digest extension and automatic ``TPMS_AUTH_COMMAND`` attachment and ``TPMS_AUTH_RESPONSE`` constant-time HMAC verification inside ``TPMDevice#execute``.
 
 Critical Path

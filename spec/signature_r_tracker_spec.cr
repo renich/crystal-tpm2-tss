@@ -1,5 +1,6 @@
 require "./spec_helper"
 
+# Verifies [FUNC-005] / [TECH-003], [TECH-004], [TECH-005]
 describe "SignatureRTracker" do
   it "rejects non-positive max_size" do
     expect_raises(ArgumentError, "max_size must be positive") do

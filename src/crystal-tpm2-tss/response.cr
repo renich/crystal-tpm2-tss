@@ -2,7 +2,7 @@ module Crystal::Tpm2::Tss
   # Represents a parsed TPM 2.0 response packet with status code, parameters, and authorization area.
   class TPMResponse
     # Response structure tag (`TPM_ST`).
-    getter tag : UInt16
+    property tag : UInt16
 
     # Total response byte length reported in the header.
     getter size : UInt32
@@ -45,20 +45,25 @@ module Crystal::Tpm2::Tss
 
     # Parses a `TPMT_SIGNATURE` ECDSA response parameter buffer into an `ECDSASignature`.
     def self.parse_ecdsa_signature(params : Bytes) : ECDSASignature
-      io = IO::Memory.new(params)
-      _header = io.read_bytes(UInt32, TPM2::ENDIAN)
-      ECDSASignature.new(read_sized_component(io), read_sized_component(io))
-    rescue IO::EOFError
-      raise TPMError.new("Invalid ECDSA signature response")
+      Tpm2bCodec.decode_tpmt_signature(params)
     end
 
     # Parses a `TPM2_ReadPublic` response parameter buffer into 32-byte `(x, y)` coordinates.
     def self.parse_read_public_xy(params : Bytes) : Tuple(Bytes, Bytes)
-      return {Bytes.new(32, 0_u8), Bytes.new(32, 0_u8)} if params.size < 68
+      raise TPMError.new("Truncated ReadPublic response payload") if params.size < 68
+      if params.size > 68
+        decoded = Tpm2bCodec.decode_ecc_public(params)
+        return {decoded[:x], decoded[:y]}
+      end
+
       io = IO::Memory.new(params)
-      x = Bytes.new(io.read_bytes(UInt16, TPM2::ENDIAN).to_i)
+      x_len = io.read_bytes(UInt16, TPM2::ENDIAN).to_i
+      raise TPMError.new("Invalid ReadPublic X coordinate length") if x_len != 32
+      x = Bytes.new(32)
       io.read_fully(x)
-      y = Bytes.new(io.read_bytes(UInt16, TPM2::ENDIAN).to_i)
+      y_len = io.read_bytes(UInt16, TPM2::ENDIAN).to_i
+      raise TPMError.new("Invalid ReadPublic Y coordinate length") if y_len != 32
+      y = Bytes.new(32)
       io.read_fully(y)
       {x, y}
     end
@@ -66,13 +71,6 @@ module Crystal::Tpm2::Tss
     # Returns `true` when the TPM response code equals `TPM_RC_SUCCESS` (`0`).
     def success? : Bool
       @code == 0_u32
-    end
-
-    private def self.read_sized_component(io : IO::Memory) : Bytes
-      buf = Bytes.new(io.read_bytes(UInt16, TPM2::ENDIAN).to_i)
-      io.read_fully(buf)
-      raise TPMError.new("Invalid ECDSA signature component") if buf.empty? || buf.all?(&.zero?)
-      buf
     end
 
     private def self.parse_session_area(io : IO::Memory, data : Bytes, resp : TPMResponse, session : Session?) : Nil
@@ -98,17 +96,9 @@ module Crystal::Tpm2::Tss
 
     private def self.extract_session_nonce(auth_area : Bytes, session : Session?) : Nil
       return unless session
-      return if auth_area.size < 10
-
-      auth_io = IO::Memory.new(auth_area)
-      _session_count = auth_io.read_bytes(UInt32, TPM2::ENDIAN)
-      _handle = auth_io.read_bytes(UInt32, TPM2::ENDIAN)
-      nonce_size = auth_io.read_bytes(UInt16, TPM2::ENDIAN)
-      return if (auth_io.size - auth_io.pos) < nonce_size.to_i
-
-      nonce = Bytes.new(nonce_size.to_i)
-      auth_io.read_fully(nonce)
-      session.update_nonce_tpm(nonce)
+      decoded = Tpm2bCodec.decode_auth_response(auth_area)
+      session.update_nonce_tpm(decoded[:nonce])
+    rescue TPMError
     end
   end
 end

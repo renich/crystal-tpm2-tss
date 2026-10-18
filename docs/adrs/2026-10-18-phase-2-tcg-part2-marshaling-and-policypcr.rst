@@ -14,8 +14,8 @@ Phase 1 ``v0.4.0`` delivers a complete FIDO2 NIST P-256 credential lifecycle, KD
 Decision
 --------
 
-#. **Dedicated TCG Part 2 Binary Codec**: Introduce ``Crystal::Tpm2::Tss::Tpm2bCodec`` in Phase 2 ``v0.5.0`` to encode and decode ``TPMS_AUTH_COMMAND``, ``TPMS_AUTH_RESPONSE``, ``TPM2B_SENSITIVE_CREATE``, ``TPM2B_PUBLIC``, ``TPMS_ECC_PARMS``, and ``TPMT_SIGNATURE`` with strict big-endian length validation, fulfilling ``[FUNC-006]`` and ``[TECH-006]``.
-#. **Hardware Salted/Bound HMAC and PolicyPCR Session Lifecycle**: Extend ``Session`` and ``TPMDevice`` in Phase 2 ``v0.5.0`` to execute ``TPM2_StartAuthSession``, ``TPM2_PolicyPCR``, and ``TPM2_FlushContext`` with salted/bound ``KDFa`` session key derivation and automatic ``TPMS_AUTH_COMMAND``/``TPMS_AUTH_RESPONSE`` framing inside ``TPMDevice#execute``, fulfilling ``[FUNC-007]`` and ``[TECH-007]``.
+#. **Dedicated TCG Part 2 Binary Codec**: Introduce ``Crystal::Tpm2::Tss::Tpm2bCodec`` in Phase 2 ``v0.4.1`` to encode and decode ``TPMS_AUTH_COMMAND``, ``TPMS_AUTH_RESPONSE``, ``TPM2B_SENSITIVE_CREATE``, ``TPM2B_PUBLIC``, ``TPMS_ECC_PARMS``, and ``TPMT_SIGNATURE`` with strict big-endian length validation, fulfilling ``[FUNC-006]`` and ``[TECH-006]``.
+#. **Hardware Salted/Bound HMAC and PolicyPCR Session Lifecycle**: Extend ``Session`` and ``TPMDevice`` in Phase 2 ``v0.4.1`` to execute ``TPM2_StartAuthSession``, ``TPM2_PolicyPCR``, and ``TPM2_FlushContext`` with salted/bound ``KDFa`` session key derivation and automatic ``TPMS_AUTH_COMMAND``/``TPMS_AUTH_RESPONSE`` framing inside ``TPMDevice#execute``, fulfilling ``[FUNC-007]`` and ``[TECH-007]``.
 
 Consequences
 ------------

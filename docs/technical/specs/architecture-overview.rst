@@ -44,16 +44,16 @@ Phase 2 Technical Specifications
 --------------------------------
 
 * **[TECH-006] Tpm2bCodec TCG Part 2 Binary Marshaler**:
-  Fulfills ``[FUNC-006]`` for Phase 2 ``v0.5.0``. Defined in :doc:`../../adrs/2026-10-18-phase-2-tcg-part2-marshaling-and-policypcr`:
+  Fulfills ``[FUNC-006]`` for Phase 2 ``v0.4.1``. Defined in :doc:`../../adrs/2026-10-18-phase-2-tcg-part2-marshaling-and-policypcr`:
 
-  * ``Tpm2bCodec`` will reside in ``src/crystal-tpm2-tss/tpm2b_codec.cr`` and provide zero-copy big-endian binary encoders and decoders for ``TPMS_AUTH_COMMAND``, ``TPMS_AUTH_RESPONSE``, ``TPM2B_SENSITIVE_CREATE``, ``TPM2B_PUBLIC``, ``TPMS_ECC_PARMS``, and ``TPMT_SIGNATURE``.
-  * Every decoder must validate nested ``UInt16``/``UInt32`` size prefixes against remaining slice bounds before allocation and raise ``TPMError`` on trailing or truncated bytes.
+  * ``Tpm2bCodec`` resides in ``src/crystal-tpm2-tss/tpm2b_codec.cr`` and provides big-endian binary encoders and decoders for ``TPMS_AUTH_COMMAND``, ``TPMS_AUTH_RESPONSE``, ``TPM2B_SENSITIVE_CREATE``, ``TPM2B_PUBLIC``, ``TPMS_ECC_PARMS``, and ``TPMT_SIGNATURE``.
+  * Every decoder validates nested ``UInt16``/``UInt32`` size prefixes against remaining slice bounds before allocation and raises ``TPMError`` on trailing or truncated bytes.
 
 * **[TECH-007] Salted/Bound HMAC and PolicyPCR Session State Machine**:
-  Fulfills ``[FUNC-007]`` for Phase 2 ``v0.5.0``. Defined in :doc:`../../adrs/2026-10-18-phase-2-tcg-part2-marshaling-and-policypcr`:
+  Fulfills ``[FUNC-007]`` for Phase 2 ``v0.4.1``. Defined in :doc:`../../adrs/2026-10-18-phase-2-tcg-part2-marshaling-and-policypcr`:
 
-  * ``Session`` and ``TPMDevice`` will implement ``TPM2_StartAuthSession`` with salted and bound ``sessionKey`` derivation via ``ParameterEncryption.kdfa``, ``TPM2_PolicyPCR`` digest extension, and ``TPM2_FlushContext`` session teardown.
-  * ``TPMDevice#execute`` will automatically attach ``TPMS_AUTH_COMMAND`` frames, decrypt encrypted response parameters, and verify ``TPMS_AUTH_RESPONSE`` HMACs before returning ``TPMResponse`` to callers.
+  * ``Session`` and ``TPMDevice`` implement ``TPM2_StartAuthSession`` with salted and bound ``sessionKey`` derivation via ``ParameterEncryption.kdfa``, ``TPM2_PolicyPCR`` digest extension, and ``TPM2_FlushContext`` session teardown.
+  * ``TPMDevice#execute`` automatically rolls ``nonceCaller``, attaches ``TPMS_AUTH_COMMAND`` frames, and verifies ``TPMS_AUTH_RESPONSE`` HMACs in constant time before returning ``TPMResponse`` to callers.
 
 Memory and Concurrency Profile
 ------------------------------

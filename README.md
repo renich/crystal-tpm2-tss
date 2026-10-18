@@ -7,10 +7,10 @@
 </p>
 
 <p align="center">
-  <a href="https://gitlab.com/renich/crystal-tpm2-tss/-/releases"><img src="https://img.shields.io/badge/version-v0.4.0-blue.svg?style=flat-square" alt="Version 0.4.0" /></a>
+  <a href="https://gitlab.com/renich/crystal-tpm2-tss/-/releases"><img src="https://img.shields.io/badge/version-v0.4.1-blue.svg?style=flat-square" alt="Version 0.4.1" /></a>
   <a href="https://crystal-lang.org/"><img src="https://img.shields.io/badge/crystal-%3E%3D%201.21.0-black.svg?style=flat-square&logo=crystal&logoColor=white" alt="Crystal >= 1.21.0" /></a>
   <a href="https://gitlab.com/renich/crystal-tpm2-tss/-/pipelines"><img src="https://img.shields.io/badge/pipeline-passing-brightgreen.svg?style=flat-square&logo=gitlab" alt="GitLab CI Passing" /></a>
-  <a href="https://gitlab.com/renich/crystal-tpm2-tss"><img src="https://img.shields.io/badge/specs-41%20passing-success.svg?style=flat-square&logo=crystal" alt="Specs Passing" /></a>
+  <a href="https://gitlab.com/renich/crystal-tpm2-tss"><img src="https://img.shields.io/badge/specs-53%20passing-success.svg?style=flat-square&logo=crystal" alt="Specs Passing" /></a>
   <a href="https://github.com/crystal-ameba/ameba"><img src="https://img.shields.io/badge/ameba-0%20violations-brightgreen.svg?style=flat-square" alt="Ameba Clean" /></a>
   <a href="https://github.com/kdairatchi/flaw"><img src="https://img.shields.io/badge/flaw-0%20findings-brightgreen.svg?style=flat-square" alt="Flaw Clean" /></a>
 </p>
@@ -30,15 +30,16 @@
 
 ## Overview
 
-**crystal-tpm2-tss** is a native, memory-safe Crystal TPM 2.0 Software Stack implementation providing hardware-backed Key Derivation Function persistence, session-based HMAC authorization with `cpHash`/`rpHash` digests, KDFa `XOR` and `AES-128-CFB` parameter encryption, and FIDO2/CTAP2 credential management backed by OpenSSL 3.5 NIST P-256 ECDSA key generation and verification.
+**crystal-tpm2-tss** is a native, memory-safe Crystal TPM 2.0 Software Stack implementation providing hardware-backed Key Derivation Function persistence, TCG TPM 2.0 Part 2 binary structure marshaling (`Tpm2bCodec`), salted/bound HMAC and `PolicyPCR` session authorization with `cpHash`/`rpHash` digests, KDFa `XOR` and `AES-128-CFB` parameter encryption, and FIDO2/CTAP2 credential management backed by OpenSSL 3.5 NIST P-256 ECDSA key generation and verification.
 
 ### Key Highlights
 
 1. **Hardware-Bound KDF & Disjoint NV Persistence**: Provisions root derivation keys at NV index `0x01C00000` and allocates FIDO2 credential metadata across `0x01800000..0x01BFFFFF` with bounded 16-slot linear collision probing.
 2. **Real OpenSSL 3.5 NIST P-256 Verification**: Generates prime256v1 keypairs via `EVP_PKEY`, extracts public `(x, y)` coordinates via `TPM2_ReadPublic`, and cryptographically verifies `ECDSASignature` values.
-3. **Session Authorization & Parameter Encryption**: Computes TCG TPM 2.0 Part 1 Section 19.6.5 `cpHash`/`rpHash` digests, verifies response HMACs in constant time, and encrypts command parameters using Section 11.4.9.2 KDFa `XOR` and `AES-128-CFB`.
-4. **Atomic O(1) Nonce-Reuse Detection**: Thread-safe `SignatureRTracker` combining `Set(String)` and `Deque(String)` under `Sync::Mutex` to detect duplicate ECDSA `r` components immediately.
-5. **Fail-Closed Hardware & Stateful Virtual Transport**: Communicates over `/dev/tpmrm0` using stack-allocated buffers or executes deterministically against an in-memory OpenSSL 3.5 NIST P-256 virtual simulator.
+3. **TCG Part 2 Binary Marshaling (`Tpm2bCodec`)**: Encodes and decodes `TPMS_AUTH_COMMAND`, `TPMS_AUTH_RESPONSE`, `TPM2B_SENSITIVE_CREATE`, `TPM2B_PUBLIC` (`TPMS_ECC_PARMS`), and `TPMT_SIGNATURE` with strict overflow-safe big-endian length validation.
+4. **Salted/Bound HMAC, PolicyPCR & Parameter Encryption**: Establishes hardware/simulated sessions via `Session.start_auth_session`, extends `PolicyPCR` digests, verifies response HMACs in constant time, and encrypts command parameters using Section 11.4.9.2 KDFa `XOR` and `AES-128-CFB`.
+5. **Atomic O(1) Nonce-Reuse Detection**: Thread-safe `SignatureRTracker` combining `Set(String)` and `Deque(String)` under `Sync::Mutex` to detect duplicate ECDSA `r` components immediately.
+6. **Fail-Closed Hardware & Stateful Virtual Transport**: Communicates over `/dev/tpmrm0` using stack-allocated buffers or executes deterministically against an in-memory OpenSSL 3.5 NIST P-256 virtual simulator.
 
 ---
 
@@ -50,7 +51,7 @@ Add `crystal-tpm2-tss` to your application's `shard.yml`:
 dependencies:
   crystal-tpm2-tss:
     gitlab: renich/crystal-tpm2-tss
-    version: ~> 0.4.0
+    version: ~> 0.4.1
 ```
 
 Then install the shard:
@@ -81,6 +82,12 @@ credential = credential_manager.get_or_create_credential("user-credential-1234")
 digest = Random::Secure.random_bytes(32)
 signature = credential.sign(digest)
 puts "ECDSA Signature valid? #{credential.verify(digest, signature)}"
+
+# Establish a bound session, extend a PolicyPCR digest, and flush context
+session = Session.start_auth_session(tpm, auth_value: root_key)
+policy_digest = session.policy_pcr(tpm, 7_u32, digest)
+puts "PolicyPCR Digest: #{policy_digest.hexstring}"
+session.flush(tpm)
 ```
 
 ---

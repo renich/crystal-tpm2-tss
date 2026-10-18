@@ -27,6 +27,7 @@ module Crystal::Tpm2::Tss
     fun ecdsa_sig_set0 = ECDSA_SIG_set0(sig : Void*, r : Void*, s : Void*) : LibC::Int
     fun bn_bn2binpad = BN_bn2binpad(a : Void*, to : UInt8*, tolen : LibC::Int) : LibC::Int
     fun bn_bin2bn = BN_bin2bn(s : UInt8*, len : LibC::Int, ret : Void*) : Void*
+    fun bn_free = BN_free(a : Void*) : Void
     fun d2i_pubkey = d2i_PUBKEY(a : Void**, pp : UInt8**, length : LibC::Long) : Void*
   end
 
@@ -149,8 +150,10 @@ module Crystal::Tpm2::Tss
         LibCryptoP256.ecdsa_sig_get0(sig, pointerof(r_bn), pointerof(s_bn))
         r_bytes = Bytes.new(32)
         s_bytes = Bytes.new(32)
-        LibCryptoP256.bn_bn2binpad(r_bn, r_bytes.to_unsafe, 32)
-        LibCryptoP256.bn_bn2binpad(s_bn, s_bytes.to_unsafe, 32)
+        if LibCryptoP256.bn_bn2binpad(r_bn, r_bytes.to_unsafe, 32) != 32 ||
+           LibCryptoP256.bn_bn2binpad(s_bn, s_bytes.to_unsafe, 32) != 32
+          raise TPMError.new("BN_bn2binpad failed to serialize 32-byte ECDSA coordinates")
+        end
         ECDSASignature.new(r_bytes, s_bytes)
       ensure
         LibCryptoP256.ecdsa_sig_free(sig)
@@ -162,9 +165,7 @@ module Crystal::Tpm2::Tss
       raise TPMError.new("Failed to allocate ECDSA_SIG") if raw_sig.null?
 
       begin
-        r_bn = LibCryptoP256.bn_bin2bn(sig.r.to_unsafe, sig.r.size, Pointer(Void).null)
-        s_bn = LibCryptoP256.bn_bin2bn(sig.s.to_unsafe, sig.s.size, Pointer(Void).null)
-        raise TPMError.new("ECDSA_SIG_set0 failed") if LibCryptoP256.ecdsa_sig_set0(raw_sig, r_bn, s_bn) != 1
+        populate_ecdsa_sig(raw_sig, sig)
         der_len = LibCryptoP256.i2d_ecdsa_sig(raw_sig, Pointer(UInt8*).null)
         raise TPMError.new("i2d_ECDSA_SIG failed") if der_len <= 0
         der_out = Bytes.new(der_len)
@@ -174,6 +175,16 @@ module Crystal::Tpm2::Tss
       ensure
         LibCryptoP256.ecdsa_sig_free(raw_sig)
       end
+    end
+
+    private def populate_ecdsa_sig(raw_sig : Void*, sig : ECDSASignature) : Nil
+      r_bn = LibCryptoP256.bn_bin2bn(sig.r.to_unsafe, sig.r.size, Pointer(Void).null)
+      s_bn = LibCryptoP256.bn_bin2bn(sig.s.to_unsafe, sig.s.size, Pointer(Void).null)
+      return if !r_bn.null? && !s_bn.null? && LibCryptoP256.ecdsa_sig_set0(raw_sig, r_bn, s_bn) == 1
+
+      LibCryptoP256.bn_free(r_bn) unless r_bn.null?
+      LibCryptoP256.bn_free(s_bn) unless s_bn.null?
+      raise TPMError.new("ECDSA_SIG_set0 failed")
     end
   end
 end

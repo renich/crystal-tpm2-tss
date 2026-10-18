@@ -85,8 +85,8 @@ crystal_tpm2_tss: "Crystal::Tpm2::Tss Namespace" {
     session: "Session & ParameterEncryption\ncpHash/rpHash & Constant-Time HMAC\nKDFa XOR & AES-128-CFB" {
       class: module_active
     }
-    policy_pcr: "PolicyPCR & Salted HMAC [TECH-007]\nTPM2_StartAuthSession/TPM2_PolicyPCR\nPhase 2 v0.5.0 Hardware Sessions" {
-      class: module_phase2
+    policy_pcr: "PolicyPCR & Salted HMAC [TECH-007]\nTPM2_StartAuthSession/TPM2_PolicyPCR\nPhase 2 v0.4.1 Hardware Sessions" {
+      class: module_active
     }
   }
 
@@ -97,7 +97,7 @@ crystal_tpm2_tss: "Crystal::Tpm2::Tss Namespace" {
       class: module_active
     }
     tpm2b_codec: "Tpm2bCodec [TECH-006]\nTCG Part 2 Binary Struct Marshaler\nTPM2B_PUBLIC/TPMT_SIGNATURE" {
-      class: module_phase2
+      class: module_active
     }
     device: "TPMDevice\nHardware: /dev/tpmrm0 Stack Buffer\nVirtual: Stateful P-256 Simulator" {
       class: module_active

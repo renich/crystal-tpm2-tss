@@ -1,5 +1,6 @@
 require "./spec_helper"
 
+# Verifies [FUNC-004] / [TECH-003], [TECH-005]
 describe "ParameterEncryption" do
   it "encrypts and decrypts parameters using KDFa XOR" do
     session = Session.new(0x02000000_u32, 0_u8, TPM2::Algorithms::SHA256)
