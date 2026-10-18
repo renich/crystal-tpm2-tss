@@ -1,27 +1,83 @@
-============
-Contributing
-============
+================================
+Contributing to Crystal TPM2-TSS
+================================
 
-First off, thank you for considering contributing to the EVALinux Crypto Suite! It's people like you that make open-source secure and robust.
+Thank you for your interest in contributing to ``crystal-tpm2-tss``. We welcome contributions from human engineers and autonomous agents who share our commitment to cryptographic rigor, memory safety, and empirical verification.
 
 Code of Honor
 =============
 
-This project strictly adheres to the `Code of Honor <docs/technical/CODE_OF_HONOR.rst>`__. By participating, you are expected to uphold this code.
+All contributors are expected to uphold the principles defined in `CODE_OF_HONOR.rst <CODE_OF_HONOR.rst>`__. We build resilient, well-tested software, demand intellectual honesty, operate transparently, and verify all library behaviors empirically.
 
-Development Guidelines
-======================
-
-#. **Test-Driven Development**: All new features or bug fixes must be accompanied by relevant specifications in ``spec/``.
-#. **Coverage**: The test suite must maintain strict ``> 80%`` coverage.
-#. **Linting**: We enforce a strict 120-character line limit. Run ``make lint`` prior to committing. Absolutely no linter suppressions such as ``# ameba:disable`` or ``# flaw:disable`` are allowed.
-#. **Build System**: All tasks including testing, linting, and building docs must utilize the existing ``GNUmakefile``.
-
-Pull Request Process
+Development Workflow
 ====================
 
-#. Create a descriptive branch from ``master``.
-#. Ensure your changes compile and pass ``make check`` and ``make lint`` against the Alpine CI container specifications.
-#. Update ``CHANGELOG.rst`` following the ``Keep a Changelog 1.1.0`` guidelines.
-#. Add your ``Signed-off-by`` trailer to your commits.
+Prerequisites
+-------------
 
+* `Crystal <https://crystal-lang.org/>`__ (``>= 1.21.0``)
+* OpenSSL 3.5 development headers (``openssl-devel`` on Fedora Linux)
+* `GNU Make <https://www.gnu.org/software/make/>`__
+* `cRSTLint <https://gitlab.com/renich/crstlint>`__ and ``rstcheck`` (for documentation linting)
+
+Setting Up the Workspace
+------------------------
+
+#. Clone the repository:
+
+   .. code-block:: bash
+
+      git clone git@gitlab.com:renich/crystal-tpm2-tss.git
+      cd crystal-tpm2-tss
+
+#. Build linter dependencies and run verification gates:
+
+   .. code-block:: bash
+
+      make deps
+      make all
+      make doc-check
+
+Testing and Quality Standards
+=============================
+
+We adhere strictly to Test-Driven Development (TDD) and the principle of **Do Not Assume; Always Verify**.
+
+Running Checks
+--------------
+
+* **Run test suite**:
+
+   .. code-block:: bash
+
+      make test
+
+* **Run static linters** (Ameba and Flaw, zero suppressions allowed):
+
+   .. code-block:: bash
+
+      make lint
+
+* **Validate reStructuredText Documentation**:
+
+   .. code-block:: bash
+
+      make doc-check
+
+* **Build Sphinx and Crystal API Documentation**:
+
+   .. code-block:: bash
+
+      make docs
+
+Git Commit Standards
+====================
+
+We enforce the Conventional Commits specification:
+
+* ``feat(p256): add OpenSSL 3.5 NIST P-256 signer and verifier``
+* ``fix(session): add cpHash and rpHash parameter digest calculation``
+* ``docs(adrs): record decision on TPM 2.0 wire framing and virtual simulation``
+* ``test(spec): add end-to-end FIDO2 ECDSA signature verification specs``
+
+All commits must be signed and include ``Signed-off-by`` trailers.

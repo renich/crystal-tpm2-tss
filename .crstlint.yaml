@@ -1,0 +1,8 @@
+exclude_patterns:
+  - "lib/**"
+  - "bin/**"
+  - "build/**"
+  - "docs/build/**"
+  - "docs/technical/api/**"
+  - "public/**"
+  - "scratch/**"

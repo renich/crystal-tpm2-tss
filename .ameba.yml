@@ -3,8 +3,14 @@ Globs:
   - spec/**/*.cr
 
 Excluded:
-  - lib
-  - bin
+  - .agents/**
+  - lib/**
+  - bin/**
+  - .shards/**
+  - docs/build/**
+  - docs/technical/api/**
+  - public/**
+  - scratch/**
 
 Layout/LineLength:
   Enabled: true
@@ -16,4 +22,3 @@ Style/GuardClause:
 Metrics/CyclomaticComplexity:
   Enabled: true
   MaxComplexity: 10
-

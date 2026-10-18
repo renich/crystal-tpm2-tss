@@ -4,13 +4,19 @@ require "openssl"
 module Crystal::Tpm2::Tss
   # Manages persistent KDF master keys stored in TPM 2.0 Non-Volatile (NV) memory.
   class KDFKeyManager
+    # Underlying `TPMDevice` executing NV read/write commands.
     getter tpm : TPMDevice
+
+    # TPM NV index (`0x01C00000` by default) storing the 32-byte KDF root key.
     getter kdf_nv_index : UInt32
+
+    # Platform secret used to derive the NV index authorization value.
     getter platform_secret : Bytes
 
     @kdf_key : Bytes?
     @mutex : Sync::Mutex
 
+    # Initializes a `KDFKeyManager` bound to `tpm`, `platform_secret`, and `kdf_nv_index`.
     def initialize(
       @tpm : TPMDevice,
       @platform_secret : Bytes = Random::Secure.random_bytes(32),
@@ -20,6 +26,7 @@ module Crystal::Tpm2::Tss
       @kdf_key = nil
     end
 
+    # Retrieves the 32-byte KDF master key from cache or TPM NV storage, provisioning it if absent.
     def kdf_key : Bytes
       @mutex.synchronize do
         if kdf_key_val = @kdf_key

@@ -2,20 +2,24 @@ require "./spec_helper"
 
 # Reopens FIDO2CredentialManager to expose internal credential helpers for specification testing.
 class Crystal::Tpm2::Tss::FIDO2CredentialManager
+  # Exposes `create_fido2_credential` for unit testing.
   def public_create_fido2_credential(id : String, auth : Bytes) : FIDO2Credential
     create_fido2_credential(id, auth)
   end
 
+  # Exposes `credential_id_to_nv_index` for unit testing.
   def public_credential_id_to_nv_index(id : String) : UInt32
-    credential_id_to_nv_index(id)
+    @nv_store.credential_id_to_nv_index(id)
   end
 
+  # Exposes `store_credential_metadata` for unit testing.
   def public_store_credential_metadata(index : UInt32, handle : UInt32, id : String) : Nil
-    store_credential_metadata(index, handle, id)
+    @nv_store.store_credential_metadata(index, handle, id)
   end
 
+  # Exposes `resolve_nv_index` for unit testing.
   def public_resolve_nv_index(id : String, for_creation : Bool = false) : UInt32
-    resolve_nv_index(id, for_creation)
+    @nv_store.resolve_nv_index(id, for_creation)
   end
 end
 
@@ -91,7 +95,29 @@ describe "FIDO2CredentialManager" do
     auth = Bytes.new(32, 0_u8)
     cred = manager.public_create_fido2_credential("test_id", auth)
     cred.should be_a(FIDO2Credential)
-    cred.persistent_handle.should eq(0x81010001_u32)
+    cred.persistent_handle.should eq(manager.derive_persistent_handle("test_id"))
+    (cred.persistent_handle & 0xFFFF0000_u32).should eq(0x81010000_u32)
+  end
+
+  it "derives distinct persistent handles and verifies real NIST P-256 ECDSA signatures" do
+    tpm = TPMDevice.new
+    manager = FIDO2CredentialManager.new(tpm)
+
+    cred1 = manager.get_or_create_credential("fido2_cred_alpha")
+    cred2 = manager.get_or_create_credential("fido2_cred_beta")
+    cred1.persistent_handle.should_not eq(cred2.persistent_handle)
+
+    pub_x, pub_y = cred1.public_key_xy
+    pub_x.size.should eq(32)
+    pub_y.size.should eq(32)
+    pub_x.all?(&.zero?).should be_false
+    pub_y.all?(&.zero?).should be_false
+
+    digest = Bytes.new(32, 0x42_u8)
+    sig = cred1.sign(digest)
+    cred1.verify(digest, sig).should be_true
+    cred1.verify(Bytes.new(32, 0x99_u8), sig).should be_false
+    cred2.verify(digest, sig).should be_false
   end
 
   it "resolves NV index collisions using linear probing" do

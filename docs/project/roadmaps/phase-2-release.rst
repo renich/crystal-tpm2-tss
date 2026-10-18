@@ -2,19 +2,18 @@
 Phase 2: Crucible Protocol Refactoring & Release Stabilization
 ==============================================================
 
-Status: Completed
-Target Version: 0.2.0
+Timeline and Objectives
+-----------------------
 
-Overview
-========
+Execute Crucible and Echelon zero-trust review loops to eliminate linear lookup complexity in nonce reuse tracking, complete the TPM 2.0 FIDO2 lifecycle with real OpenSSL 3.5 NIST P-256 verification, and align documentation and build pipelines.
 
-Execute Crucible Protocol zero-trust review loop to eliminate linear O(N) lookup complexity in nonce reuse tracking, correct HMAC buffer concatenation, standardize accessor method naming, and achieve 0 lint warnings.
+Milestones and Deliverables
+---------------------------
 
-Milestones & Deliverables
-=========================
+* **Milestone 2.1: Cryptographic Hardening and Lifecycle Completion**:
 
-* **[TPM-005] O(1) Nonce Reuse Tracking**: Overhaul ``SignatureRTracker`` to use a ``Set(String)`` for O(1) membership checks and ``Deque(String)`` for O(1) chronological eviction.
-* **[TPM-006] Memory-Safe HMAC Key Concatenation**: Replace unsafe slice addition in ``Session#compute_hmac`` with pre-allocated buffer copy.
-* **[TPM-007] Crystal Naming Modernization**: Rename ``KDFKeyManager#get_kdf_key`` to ``KDFKeyManager#kdf_key`` per language idioms.
-* **[TPM-008] Spec Cleanliness & Formatting**: Eliminate TODO comments, format all spec files, and fix GNUmakefile test targets.
-* **[TPM-009] Documentation & Release**: Update ``CHANGELOG.rst`` with ``.. rubric::``, add AGPL-3.0-or-later licensing, and publish API docs to ``docs/technical/api``.
+  - [x] ``[TPM-005]`` Overhaul ``SignatureRTracker`` to use ``Set(String)`` and ``Deque(String)`` for ``O(1)`` membership and FIFO eviction.
+  - [x] ``[TPM-006]`` Implement TCG TPM 2.0 Part 1 KDFa ``XOR`` and ``AES-128-CFB`` parameter encryption in ``ParameterEncryption``.
+  - [x] ``[TPM-007]`` Add TCG TPM 2.0 Part 1 §19.6.5 ``cpHash`` and ``rpHash`` calculation in ``Session``.
+  - [x] ``[TPM-008]`` Integrate OpenSSL 3.5 ``P256Key`` signer/verifier, ``TPM2_ReadPublic`` coordinate extraction, and dynamic persistent handle derivation.
+  - [x] ``[TPM-009]`` Decompose ``FIDO2Credential``, ``NVMetadataStore``, and ``FIDO2CredentialManager`` into modular files under 200 lines and build full Sphinx documentation portal.

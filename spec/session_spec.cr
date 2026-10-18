@@ -33,4 +33,16 @@ describe "Session" do
     session.verify_response_hmac(auth_value, 0_u32, params, resp_hmac).should be_true
     session.verify_response_hmac(auth_value, 0_u32, params, Bytes.new(32, 0xFF_u8)).should be_false
   end
+
+  it "computes TCG TPM 2.0 Part 1 §19.6.5 cpHash and rpHash" do
+    session = Session.new(0x02000001_u32, 0_u8, TPM2::Algorithms::SHA256)
+    params = Bytes[0x01, 0x02, 0x03, 0x04]
+    cp_hash = session.compute_cp_hash(TPM2::Commands::Sign, params, [0x81010001_u32])
+    cp_hash.size.should eq(32)
+    cp_hash.should_not eq(session.compute_cp_hash(TPM2::Commands::Sign, params))
+
+    rp_hash = session.compute_rp_hash(0_u32, TPM2::Commands::Sign, params)
+    rp_hash.size.should eq(32)
+    rp_hash.should_not eq(session.compute_rp_hash(1_u32, TPM2::Commands::Sign, params))
+  end
 end

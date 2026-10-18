@@ -8,6 +8,7 @@ module Crystal::Tpm2::Tss
     @max_size : Int32
     @mutex : Sync::Mutex
 
+    # Initializes a bounded `SignatureRTracker` with capacity `max_size`.
     def initialize(@max_size : Int32) : Nil
       raise ArgumentError.new("max_size must be positive") if @max_size <= 0
 
@@ -16,10 +17,12 @@ module Crystal::Tpm2::Tss
       @mutex = Sync::Mutex.new
     end
 
+    # Returns `true` if `r_hex` is currently recorded in the active nonce window.
     def includes?(r_hex : String) : Bool
       @mutex.synchronize { @r_set.includes?(r_hex) }
     end
 
+    # Records `r_hex` in the tracker, evicting the oldest half of entries when capacity is exceeded.
     def add(r_hex : String) : Nil
       @mutex.synchronize do
         return if @r_set.includes?(r_hex)
@@ -27,6 +30,7 @@ module Crystal::Tpm2::Tss
       end
     end
 
+    # Atomically checks whether `r_hex` was previously seen (raising `SecurityError` on collision) and records it.
     def check_and_add!(r_hex : String) : Nil
       @mutex.synchronize do
         if @r_set.includes?(r_hex)

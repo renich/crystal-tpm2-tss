@@ -10,6 +10,22 @@ and this project adheres to `Semantic Versioning <https://semver.org/spec/v2.0.0
 [Unreleased]
 ============
 
+[0.4.0] - 2026-10-18
+====================
+
+.. rubric:: Added
+
+- Added real OpenSSL 3.5 NIST P-256 elliptic curve keypair generation, ECDSA digest signing, and public-key signature verification in ``P256Key``.
+- Added ``TPM2::Commands::ReadPublic`` coordinate extraction, ``StartAuthSession`` virtual simulation, and stateful ``@key_store`` tracking in ``TPMDevice``.
+- Added ``FIDO2Credential#public_key_xy`` and ``FIDO2Credential#verify`` for cryptographic verification of hardware and virtual FIDO2 signatures.
+- Added TCG TPM 2.0 Part 1 §19.6.5 ``Session#compute_cp_hash`` and ``Session#compute_rp_hash`` parameter hash calculations.
+- Added full Sphinx ``dirhtml`` documentation portal (``docs/business/``, ``docs/functional/``, ``docs/technical/``, ``docs/adrs/``, ``docs/project/``, and ``docs/user/``), ``LICENSE-DOCS``, ``CODE_OF_HONOR.rst``, and ``.crstlint.yaml``.
+
+.. rubric:: Changed
+
+- Decomposed ``FIDO2CredentialManager`` into three focused modules under 200 lines each: ``FIDO2Credential``, ``NVMetadataStore``, and ``FIDO2CredentialManager``.
+- Derived distinct persistent TPM handles (``0x81010001..0x8101FFFF``) per credential ID in ``FIDO2CredentialManager#derive_persistent_handle``.
+
 [0.3.0] - 2026-10-18
 ====================
 

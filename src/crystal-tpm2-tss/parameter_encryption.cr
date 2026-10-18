@@ -4,6 +4,7 @@ require "openssl/hmac"
 module Crystal::Tpm2::Tss
   # Implements TCG TPM 2.0 Part 1 KDFa counter-mode key derivation and session parameter encryption.
   module ParameterEncryption
+    # Derives `bits` of key material using TCG TPM 2.0 Part 1 §11.4.9.2 `KDFa` counter-mode HMAC.
     def self.kdfa(
       hash_alg : String,
       key : Bytes,
@@ -14,57 +15,57 @@ module Crystal::Tpm2::Tss
     ) : Bytes
       return Bytes.empty if bits <= 0
       bytes_needed = ((bits.to_i64 + 7) // 8).to_i32
-
       hash_alg_val = OpenSSL::Algorithm.parse(hash_alg)
       result = IO::Memory.new(bytes_needed)
-      buf = IO::Memory.new
       counter = 1_u32
 
       while result.size < bytes_needed
-        buf.clear
-        IO::ByteFormat::BigEndian.encode(counter, buf)
-        buf.write(label.to_slice)
-        buf.write_byte(0_u8)
-        buf.write(context_u)
-        buf.write(context_v)
-        IO::ByteFormat::BigEndian.encode(bits.to_u32, buf)
-
-        digest = OpenSSL::HMAC.digest(hash_alg_val, key, buf.to_slice)
-        remaining = bytes_needed - result.size
-        take_bytes = Math.min(digest.size, remaining)
-        result.write(digest[0, take_bytes])
+        payload = build_kdfa_input(counter, label, context_u, context_v, bits.to_u32)
+        digest = OpenSSL::HMAC.digest(hash_alg_val, key, payload)
+        result.write(digest[0, Math.min(digest.size, bytes_needed - result.size)])
         counter &+= 1
       end
-
       result.to_slice
     end
 
+    private def self.build_kdfa_input(
+      counter : UInt32,
+      label : String,
+      context_u : Bytes,
+      context_v : Bytes,
+      bits : UInt32,
+    ) : Bytes
+      buf = IO::Memory.new
+      IO::ByteFormat::BigEndian.encode(counter, buf)
+      buf.write(label.to_slice)
+      buf.write_byte(0_u8)
+      buf.write(context_u)
+      buf.write(context_v)
+      IO::ByteFormat::BigEndian.encode(bits, buf)
+      buf.to_slice
+    end
+
+    # Encrypts a command parameter buffer using KDFa `XOR` obfuscation or `AES-128-CFB`.
     def self.encrypt(data : Bytes, session : Session, alg : String = "XOR") : Bytes
       transform(data, session, alg, encrypt_mode: true)
     end
 
+    # Decrypts a response parameter buffer using KDFa `XOR` obfuscation or `AES-128-CFB`.
     def self.decrypt(data : Bytes, session : Session, alg : String = "XOR") : Bytes
       transform(data, session, alg, encrypt_mode: false)
     end
 
     private def self.transform(data : Bytes, session : Session, alg : String, encrypt_mode : Bool) : Bytes
       return Bytes.empty if data.empty?
-
-      if session.session_key.empty?
-        raise SecurityError.new("Session key is required for parameter encryption")
-      end
+      raise SecurityError.new("Session key is required for parameter encryption") if session.session_key.empty?
 
       case alg.upcase
       when "XOR"
         validate_session_nonces!(session)
         raise ArgumentError.new("Data payload too large for KDFa bit count") if data.size > (Int32::MAX // 8)
         mask = kdfa(
-          session.hash_alg_name,
-          session.session_key,
-          "XOR",
-          session.nonce_caller,
-          session.nonce_tpm,
-          data.size * 8
+          session.hash_alg_name, session.session_key, "XOR",
+          session.nonce_caller, session.nonce_tpm, data.size * 8
         )
         xor_bytes(data, mask)
       when "CFB", "AES-CFB"
